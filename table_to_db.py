@@ -1,6 +1,6 @@
 import sqlalchemy
 from sqlalchemy.orm.session import sessionmaker
-from db1 import df
+from pandas_eg import df
 
 engine = sqlalchemy.create_engine('sqlite:///datacamp.sqlite')
 conn = engine.connect()
@@ -32,11 +32,11 @@ metadata.create_all(engine)
 #     if_exists='append',
 #     index=False,
 # )
-json_table = str(df.to_json())
-print(json_table)
-json_query = sqlalchemy.insert(json_data_table).values(json=json_table)
-session.execute(json_query)
-session.commit()
+# json_table = str(df.to_json())
+# print(json_table)
+# json_query = sqlalchemy.insert(json_data_table).values(json=json_table)
+# session.execute(json_query)
+# session.commit()
 
 # query2 = HumanResources.select().where(HumanResources.columns.Name != '')
 # Result = session.execute(query2)
@@ -44,3 +44,4 @@ session.commit()
 json_query2 = json_data_table.select().where(json_data_table.columns.json != '')
 json_Result = session.execute(json_query2)
 print(json_Result.fetchall())
+print("Engineering" in str(json_data_table.columns.json))
