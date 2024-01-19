@@ -7,7 +7,7 @@ class App:
     def __init__(self):
         self.page: Union[ft.Page, None] = None
         self.appbar = ft.AppBar(
-            leading=ft.Icon(ft.icons.INFO),
+            leading=ft.IconButton(ft.icons.MENU, on_click=self.show_nav_drawer),
             leading_width=40,
             title=ft.Text("Sign-Up"),
             color=ft.colors.BLACK,
@@ -28,14 +28,37 @@ class App:
                 # ),
             ],
         )
+        self.nav_drawer = ft.NavigationDrawer(
+            controls=[
+                ft.Container(height=12),
+                ft.NavigationDrawerDestination(
+                    icon_content=ft.Icon(ft.icons.HOME),
+                    label="Home",
+                    selected_icon=ft.icons.HOME,
+                ),
+                ft.NavigationDrawerDestination(
+                    label="Sign-Up",
+                    icon=ft.icons.DOOR_BACK_DOOR_OUTLINED,
+                    selected_icon_content=ft.Icon(ft.icons.DOOR_BACK_DOOR),
+                ),
+                ft.NavigationDrawerDestination(
+                    icon_content=ft.Icon(ft.icons.LOCK_OPEN),
+                    label="Sign-In",
+                    selected_icon=ft.icons.LOCK_OPEN,
+                ),
+                ft.NavigationDrawerDestination(
+                    icon_content=ft.Icon(ft.icons.INFO),
+                    label="About Us",
+                    selected_icon=ft.icons.INFO,
+                )
+            ],
+        )
         self.email_tb = ft.TextField(label="Email", max_lines=1, width=280, hint_text="Enter email here")
         self.username_tb = ft.TextField(label="Username", max_lines=1, width=280, hint_text="Enter username here")
         self.password_tb = ft.TextField(label="Password", password=True, can_reveal_password=True, max_lines=1, width=280, hint_text="Enter password here")
         self.submit_button = ft.ElevatedButton(text="Submit", on_click=self.submit_button_clicked)
         self.items = [self.email_tb, self.username_tb, self.password_tb, self.submit_button]
         self.column = ft.Column(spacing=20, controls=self.items)
-        self.any_text = ft.Text()
-
         # example_tb2 = ft.TextField(label="Disabled", disabled=True, read_only=True, hint_text="Please enter text here", icon=ft.icons.EMOJI_EMOTIONS, value="First name")
 
     def switch_theme(self, e):
@@ -72,14 +95,17 @@ class App:
             pass
             # redirect to another page
 
-
+    def show_nav_drawer(self, e):
+        self.nav_drawer.open = True
+        self.nav_drawer.update()
+        self.page.update()
 
     def main(self, page: ft.Page) -> None:
         self.page = page
         # page.scroll = ft.ScrollMode.HIDDEN
         # page.auto_scroll = True
-
         self.page.appbar = self.appbar
+        self.page.drawer = self.nav_drawer
         self.page.theme_mode = ft.ThemeMode.LIGHT
         # self.page.floating_action_button = ft.FloatingActionButton(
         #     icon=ft.icons.ADD, on_click=self.fab_pressed, bgcolor=ft.colors.BLUE_200)
@@ -95,3 +121,13 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+
+
+
+
+
+
+
+
+
