@@ -34,7 +34,7 @@ class App:
                 ft.NavigationDrawerDestination(
                     icon_content=ft.Icon(ft.icons.HOME),
                     label="Home",
-                    selected_icon=ft.icons.HOME,
+                    selected_icon=ft.icons.HOME
                 ),
                 ft.NavigationDrawerDestination(
                     label="Sign-Up",
