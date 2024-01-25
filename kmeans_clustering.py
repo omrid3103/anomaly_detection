@@ -2,7 +2,6 @@ import random
 import numpy as np
 import math
 import statistics
-import matplotlib.pyplot as plt
 
 x = [[4, 10, 8], [4.1, 11, 7], [3.8, 9, 9], [3.9, 9.8, 8], [4, 10.5, 7.9], [5, 3, 4], [4.8, 5, 5], [5.2, 4, 4.5], [5.1, 2, 4.2], [4.9, 3, 3.7]]
 first_center = [random.randrange(1, 10), random.randrange(1, 10), random.randrange(1, 10)]
