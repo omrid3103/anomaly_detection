@@ -2,27 +2,43 @@ import datetime
 import numpy as np
 import math
 from datetime import datetime
+import pandas as pd
+
 
 
 # we will receive a list that contains the following criteria, and analyzes the inserted data accordingly:
 #     time of transaction - the time will be divided into 4 different groups: 12:01AM-6AM (0), 6:01AM-12PM (1), 12:01PM-6PM (2), 6:01PM-12AM (3)
 #     location of transaction - every time a new location is introduced, it will be given a number
 #     amount of money - will be represented by a float-typed number
-#     frequency of transaction - (in the given time "jump" between every insertion of the list)
 #     Was a card shown during the purchase
 
 
-class kMeansPiece:
-    def __init__(self, date_str: str, transac_location: str, amount: float, was_card_shown: bool):
+date = ["18/05 00:38", "25/01 06:30", "07/04 08:15", "18/04 17:02", "28/07 17:18", "15/08 19:53", "04/10 22:22"]
+location = ["yellow", "school", "yellow", "cinema-city", "nike", "rami-levi", "bit"]
+amount = [13.9, 10, 11.9, 65, 289.9, 24.2, 20]
+was_card_shown = ['Yes', 'Yes', 'Yes', 'No', 'Yes', 'Yes', 'No']
+df_dict = {'date': date, 'location': location, 'amount': amount, 'was_card_shown': was_card_shown}
+
+
+LOCATIONS: dict[str, float] = {}
+DATA_TABLE: pd.DataFrame = pd.DataFrame(df_dict)
+
+
+
+class KMeansRow:
+    def __init__(self, date_str: str, transac_location: str, amount: float, was_card_shown: str):
         self.date_str: str = date_str
         self.transac_location: str = transac_location
-        self.locations: dict[str, float] = {}
-        # maybe take the dict as a parameter in the init func?
+        self.locations: dict[str, float] = LOCATIONS
         self.amount: float = amount
-        self.was_card_shown: bool = was_card_shown
+        self.was_card_shown: bool = True
+        if was_card_shown == 'Yes':
+            self.was_card_shown: bool = True
+        else:
+            self.was_card_shown: bool = False
 
     def time_of_transaction(self) -> float:
-        datetime_object = datetime.strptime(self.date_str, '%H:%M')
+        datetime_object = datetime.strptime(self.date_str, '%d/%m %H:%M')
         datetime_object = datetime_object.strftime('%H:%M')
         datetime_object = datetime.strptime(datetime_object, '%H:%M')
         group_0 = datetime.strptime('00:00', '%H:%M')
@@ -55,8 +71,24 @@ class kMeansPiece:
         return 1.0
 
 
+class KMeansTable:
+    def __init__(self):
+        self.table: pd.DataFrame = DATA_TABLE
+        self.features: list[list[float]] = self.define_features()
+
+    def define_features(self) -> list[list[float]]:
+        external_list: list[list[float]] = []
+        internal_list: list[float] = []
+        for i, r in self.table.iterrows():
+            print(r)
+            row = KMeansRow(r["date"], r["location"], r["amount"], r["was_card_shown"])
+            internal_list = [row.time_of_transaction(), row.location(), row.amount, row.show_of_card()]
+            external_list.append(internal_list)
+        return external_list
+
+class kMeansClustering:
+    pass
 
 
-
-
-
+k_table = KMeansTable()
+print(k_table.define_features())
