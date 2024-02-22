@@ -2,93 +2,79 @@ import random
 import numpy as np
 import math
 import statistics
-import matplotlib.pyplot as plt
-
-x = [[4.0, 10.0], [4.1, 11.0], [3.8, 9.0], [3.9, 9.8], [4.0, 10.5], [5.0, 3.0], [4.8, 5.0], [5.2, 4.0], [5.1, 2.0],
-     [4.9, 3.0]]
-
-npa = np.array(x)
 
 
-# center_list = [random.randrange(1, 10), random.randrange(1, 10), random.randrange(1, 10)]
-# # second_center = [random.randrange(1, 10), random.randrange(1, 10), random.randrange(1, 10)]
-# counter = 10
-# list_first = []
-# list_second = []
-# while counter != 0:
-#     for point in x:
-#         dist_first = math.dist(point, first_center)
-#         dist_second = math.dist(point, second_center)
-#         if dist_first > dist_second:
-#             list_second.append(point)
-#         else:
-#             list_first.append(point)
-#
-#     first_center = [np.array(list_first)[:, 0].mean(), np.array(list_first)[:, 1].mean(), np.array(list_first)[:, 1].mean()]
-#     second_center = [np.array(list_second)[:, 0].mean(), np.array(list_second)[:, 1].mean(), np.array(list_second)[:, 1].mean()]
-#     counter -= 1
-#
-# print(len(list_first))
-# print(len(list_second))
-# print(first_center)
-# print(second_center)
-# print(str(list_first) + "\n\n\n\n\n\n")
-# print(str(list_second))
-
-def distance_calc(x_point: float, y_point: float, x_center: float, y_center: float) -> float:
-    return math.sqrt(math.pow(x_point - x_center, 2) + math.pow(y_point - y_center, 2))
+def distance_calc(point_coordinates_arr: np.ndarray, center_coordinates_arr: np.ndarray) -> float:
+    sum_differences: int = 0
+    for i in range(len(point_coordinates_arr)):
+        sum_differences += math.pow(point_coordinates_arr[i] - center_coordinates_arr[i], 2)
+    return math.sqrt(sum_differences)
 
 
-def point_distance(x_point: float, y_point: float, centers_array: np.array):
-    #centers_list: list[list[float]]
+def cluster_index_of_point(specific_point_arr: np.ndarray, centers_array: np.array):
     """dictionary that keeps a tuple of two points (the arg point and the current center from the arg centers_list)"""
-    # dist_dict: dict[tuple[tuple[float], tuple[float]], float] = {}
-    distance_arr = np.zeros([len(centers_array), 3], dtype=float)
+    distance_arr = np.zeros([len(centers_array), len(specific_point_arr) + 1], dtype=float)
 
     """adds to the latter dictionary a cell of: key - the tuple of the point and current center (c), value -the wanted distance between 
             the current center and point"""
     i = 0
     for c in centers_array:
-        row_list: list[float, float, float] = [x_point, y_point, distance_calc(x_point, y_point, c[0], c[1])]
+        row_list = []
+        for j in range(len(specific_point_arr)):
+            row_list.append(specific_point_arr[j])
+        row_list.append(distance_calc(specific_point_arr, c))
         row_array = np.array(row_list)
         distance_arr[i, :] = row_array
         i += 1
-        # dist_dict[(tuple(point), tuple(c))] = math.dist(point, c)
 
     """keeps in a variable the minimal distance between the point and the right center"""
-    min_dist, min_dist_index = distance_arr[:, 2].min(), distance_arr[:, 2].argmin()
+    min_dist, min_dist_index = distance_arr[:, len(specific_point_arr)].min(), distance_arr[:, len(specific_point_arr)].argmin()
     return min_dist_index
-    # """return the index of the min-distance center in the dictionary"""
-    # index = 0
-    # for c in centers_list:
-    #     if min_dist == dist_dict[(tuple(point), tuple(c))]:
-    #         return index
-    #     index += 1
 
 
-def kmc(points_array: np.array, n: int):
-    centers_array: np.array = np.zeros([n, 2], dtype=float)
-    index_dict: dict[int, list[list[float]]] = {}
-    grouping_array = np.zeros([len(points_array), 3])
-    for i in range(n):
-        specific_center_arr: np.array = np.array([random.randrange(1, 10), random.randrange(1, 10)])
-        centers_array[i, :] = specific_center_arr
-        index_dict[i] = []
-    # for i in range(10):
-    i = 0
-    for p in points_array:
-        # index_dict[point_distance(p, centers_list)].append(p)
-        grouping_array[i, :] = np.array([point_distance(p[0], p[1], centers_array), p[0], p[1]])
-        i += 1
-        # for l in range(len(centers_list)):
-        #     centers_list[l] = [random.randrange(1, 10), random.randrange(1, 10)]
-    return grouping_array, centers_array
+def clusters_groups_division(points_array: np.ndarray, centers_array: np.ndarray, n_clusters: int) -> list[list[int]]:
+    grouping_list: list[list[int]] = [[] for _ in range(n_clusters)]
+    for i, p in enumerate(points_array):
+        cluster_i = cluster_index_of_point(p, centers_array)
+        grouping_list[cluster_i].append(i)
+    return grouping_list
 
+
+def new_centers(points_array: np.array, grouping_list: list[list[int]]) -> np.ndarray:
+    centers = np.zeros((len(grouping_list), len(points_array[0])))
+    for cluster_i, cluster_points_i in enumerate(grouping_list):
+        if len(grouping_list[cluster_i]) != 0:
+            for j in range(len(points_array[0])):
+                centers[cluster_i][j] = points_array[cluster_points_i][:, j].mean()
+        else:
+            continue
+    return centers
+
+
+def kmc(
+        points_array: np.ndarray,
+        centers_array: np.ndarray,
+        n_clusters: int,
+        iterations: int = 1
+) -> tuple[np.ndarray, list[list[int]]]:
+    grouping_list = clusters_groups_division(points_array, centers_array, n_clusters)
+    # for i, p in enumerate(points_array):
+    #     print(i, p)
+    # print("Test run #1")
+    # print(centers_array)
+    # print(grouping_list)
+    # print("\n")
+    for i in range(iterations):
+        # print("Test run #" + str(i + 2))
+        centers_array = new_centers(points_array, grouping_list)
+        # print(new_centers_arr)
+        grouping_list = clusters_groups_division(points_array, centers_array, n_clusters)
+        # print(grouping_list)
+        # print("\n")
+    return centers_array, grouping_list
 
 def main():
-    g_a, c_a = kmc(npa, 4)
-    print(g_a)
-    print(c_a)
+    pass
 
 if __name__ == "__main__":
     main()
