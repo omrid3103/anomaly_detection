@@ -5,9 +5,10 @@ from datetime import datetime
 import pandas as pd
 
 
-
 # we will receive a list that contains the following criteria, and analyzes the inserted data accordingly:
-#     time of transaction - the time will be divided into 4 different groups: 12:01AM-6AM (0), 6:01AM-12PM (1), 12:01PM-6PM (2), 6:01PM-12AM (3)
+#     time of transaction - the time will be divided into 4 different groups:
+#           12:01AM-3AM (0), 3:01AM-6AM (1), 06:01AM-9AM (2), 9:01AM-12PM (3),
+#           12:01PM-3PM (4), 3:01PM-6PM (5), 6:01PM-9PM (7), 9:01PM-12AM (7)
 #     location of transaction - every time a new location is introduced, it will be given a number
 #     amount of money - will be represented by a float-typed number
 #     Was a card shown during the purchase
@@ -42,16 +43,28 @@ class KMeansRow:
         datetime_object = datetime_object.strftime('%H:%M')
         datetime_object = datetime.strptime(datetime_object, '%H:%M')
         group_0 = datetime.strptime('00:00', '%H:%M')
-        group_1 = datetime.strptime('06:00', '%H:%M')
-        group_2 = datetime.strptime('12:00', '%H:%M')
-        group_3 = datetime.strptime('18:00', '%H:%M')
+        group_1 = datetime.strptime('03:00', '%H:%M')
+        group_2 = datetime.strptime('06:00', '%H:%M')
+        group_3 = datetime.strptime('09:00', '%H:%M')
+        group_4 = datetime.strptime('12:00', '%H:%M')
+        group_5 = datetime.strptime('15:00', '%H:%M')
+        group_6 = datetime.strptime('18:00', '%H:%M')
+        group_7 = datetime.strptime('21:00', '%H:%M')
         if datetime_object < group_1:
             return 0.0
         if datetime_object < group_2:
             return 1.0
         if datetime_object < group_3:
             return 2.0
-        return 3.0
+        if datetime_object < group_4:
+            return 3.0
+        if datetime_object < group_5:
+            return 4.0
+        if datetime_object < group_6:
+            return 5.0
+        if datetime_object < group_7:
+            return 6.0
+        return 7.0
 
     def location(self) -> float:
         if self.locations == {}:
@@ -85,6 +98,7 @@ class KMeansTable:
             internal_list = [row.time_of_transaction(), row.location(), row.amount, row.show_of_card()]
             external_list.append(internal_list)
         return external_list
+
 
 class kMeansClustering:
     pass
