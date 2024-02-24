@@ -1,9 +1,23 @@
 import datetime
 import numpy as np
 import math
-from datetime import datetime
+from datetime import datetime, timedelta
+import random
 import pandas as pd
 
+
+#
+
+def random_date_generator() -> str:
+    start_date = datetime.now().replace(month=3, day=1)
+    end_date = start_date + timedelta(days=30)
+    random_date = start_date + (end_date - start_date) * random.random()
+    formatted_random_date = random_date.strftime('%d/%m %H:%M')
+    return formatted_random_date
+
+
+random_locations = ["Yellow", "School", "Home", "Cinema-City", "Nike", "Adidas", "Pull and Bear", "Web", "Train", "Beach", "Airport", "Bit"]
+yes_or_no = ["Yes", "No"]
 
 # we will receive a list that contains the following criteria, and analyzes the inserted data accordingly:
 #     time of transaction - the time will be divided into 4 different groups:
@@ -14,10 +28,10 @@ import pandas as pd
 #     Was a card shown during the purchase
 
 
-date = ["18/05 00:38", "25/01 06:30", "07/04 08:15", "18/04 17:02", "28/07 17:18", "15/08 19:53", "04/10 22:22"]
-location = ["yellow", "school", "yellow", "cinema-city", "nike", "rami-levi", "bit"]
-amount = [13.9, 10, 11.9, 65, 289.9, 24.2, 20]
-was_card_shown = ['Yes', 'Yes', 'Yes', 'No', 'Yes', 'Yes', 'No']
+date = [random_date_generator() for _ in range(149)]
+location = [random.choice(random_locations) for _ in range(149)]
+amount = [round(random.uniform(0.5, 201), 1) for _ in range(149)]
+was_card_shown = [random.choice(yes_or_no) for _ in range(149)]
 df_dict = {'date': date, 'location': location, 'amount': amount, 'was_card_shown': was_card_shown}
 
 
@@ -87,17 +101,20 @@ class KMeansRow:
 class KMeansTable:
     def __init__(self):
         self.table: pd.DataFrame = DATA_TABLE
-        self.features: list[list[float]] = self.define_features()
+        self.features: np.ndarray = self.define_features()
 
-    def define_features(self) -> list[list[float]]:
+    def define_features(self) -> np.ndarray:
         external_list: list[list[float]] = []
         internal_list: list[float] = []
+        rows_array = np.zeros([len(self.table), 4])
         for i, r in self.table.iterrows():
             print(r)
             row = KMeansRow(r["date"], r["location"], r["amount"], r["was_card_shown"])
             internal_list = [row.time_of_transaction(), row.location(), row.amount, row.show_of_card()]
-            external_list.append(internal_list)
-        return external_list
+            row_arr = np.array(internal_list)
+            rows_array[i, :] = row_arr
+        return rows_array
+
 
 
 class kMeansClustering:
@@ -105,4 +122,6 @@ class kMeansClustering:
 
 
 k_table = KMeansTable()
-print(k_table.define_features())
+table_arr = k_table.define_features()
+for i, r in enumerate(table_arr):
+    print(i, r)
