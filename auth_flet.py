@@ -1,5 +1,5 @@
 import flet as ft
-import sign_authentication as sa
+import requests
 from typing import Union
 
 
@@ -73,7 +73,9 @@ class App:
         self.page.update()
 
     def submit_button_clicked(self, e):
-        result = sa.sign_up(self.email_tb.value, self.username_tb.value, self.password_tb.value)
+        result = requests.get("http://127.0.0.1:5555/sign_up",
+                              params={"email": self.email_tb.value, "username": self.username_tb.value, "password": self.password_tb.value}).json()
+        # result = sa.sign_up(self.email_tb.value, self.username_tb.value, self.password_tb.value)
         response = result["response"]
         print(response)
         if response == "Username invalid!":
