@@ -16,7 +16,9 @@ class SignUP:
 
     def submit_button_clicked(self, e):
         result = requests.get("http://127.0.0.1:5555/sign_up",
-                              params={"email": self.email_tb.value, "username": self.username_tb.value, "password": self.password_tb.value}).json()
+                              params={"email": self.email_tb.value, "username": self.username_tb.value,
+                                      "password": self.password_tb.value}).json()
+        # result = sa.sign_up(self.email_tb.value, self.username_tb.value, self.password_tb.value)
         response = result["response"]
         print(response)
         if response == "Username invalid!":
@@ -25,19 +27,30 @@ class SignUP:
             self.username_tb.label = response
             self.username_tb.hint_text = "Enter new username here"
             self.email_tb.border_color = ft.colors.SURFACE_VARIANT
+            self.password_tb.border_color = ft.colors.SURFACE_VARIANT
             self.email_tb.label = "Email"
+            self.password_tb.label = "Password"
         if response == "Invalid email address!" or response == "Account with the same email exists!":
             self.email_tb.border_color = ft.colors.RED_400
             self.email_tb.value = ''
             self.email_tb.label = response
             self.email_tb.hint_text = "Enter new email here"
             self.username_tb.border_color = ft.colors.SURFACE_VARIANT
+            self.password_tb.border_color = ft.colors.SURFACE_VARIANT
             self.username_tb.label = "Username"
+            self.password_tb.label = "Password"
+        if response == "Invalid password!":
+            self.password_tb.border_color = ft.colors.RED_400
+            self.password_tb.value = ''
+            self.password_tb.label = response
+            self.password_tb.hint_text = "Enter new email here"
+            self.username_tb.border_color = ft.colors.SURFACE_VARIANT
+            self.email_tb.border_color = ft.colors.SURFACE_VARIANT
+            self.username_tb.label = "Username"
+            self.email_tb.label = "Email"
         self.page.update()
         if response == "Signed up successfully!":
             pass
-            # redirect to another page
-
     # def show_nav_drawer(self, e, page):
     #     nav_drawer.open = True
     #     nav_drawer.update()

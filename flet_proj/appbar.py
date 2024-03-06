@@ -18,7 +18,7 @@ def appbar(page):
             ),
             ft.NavigationDrawerDestination(
                 icon_content=ft.TextButton("About Us", icon=ft.icons.INFO, icon_color=ft.colors.BLACK, on_click=lambda _: page.go('/index')),
-            )
+            ),
         ],
 
     )

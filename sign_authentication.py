@@ -81,7 +81,6 @@ def sign_up(email: str, username: str, password: str) -> dict:
     username_query: bool = user_auth == []
     if not username_query or username == '' or username == " " or len(username) <= 5:
         return {"response": "Username invalid!"}
-    pass_hash = hashlib.sha256(password.encode()).hexdigest()
     if not validate_email(email):
         return {"response": "Invalid email address!"}
     email_auth = Authentication.select().where(Authentication.columns.Email == email)
@@ -90,7 +89,10 @@ def sign_up(email: str, username: str, password: str) -> dict:
     if not email_query:
         return {"response": "Account with the same email exists!"}
         # add in flet a way to allow rewriting the accounts details and rerunning the function
+    if password == "" or " ":
+        return {"response": "Invalid password!"}
     else:
+        pass_hash = hashlib.sha256(password.encode()).hexdigest()
         insert_query = sqlalchemy.insert(Authentication).values(Email=email, Username=username, Password=pass_hash)
         session.execute(insert_query)
         session.commit()
