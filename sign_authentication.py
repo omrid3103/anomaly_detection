@@ -89,7 +89,7 @@ def sign_up(email: str, username: str, password: str) -> dict:
     if not email_query:
         return {"response": "Account with the same email exists!"}
         # add in flet a way to allow rewriting the accounts details and rerunning the function
-    if password == "" or " ":
+    if password == "" or password == " ":
         return {"response": "Invalid password!"}
     else:
         pass_hash = hashlib.sha256(password.encode()).hexdigest()
