@@ -1,10 +1,13 @@
 import flet as ft
 import requests
+import time
 from typing import Union
 
 
 class Authentication:
-    def __init__(self, page):
+    def __init__(self, page, router):
+        self.details: dict[str, str] = {"username": "", "email": ""}
+        self.router = router
         self.page = page
         self.username_tb = ft.TextField(label="Username", max_lines=1, width=280, hint_text="Enter username here")
         self.email_tb = ft.TextField(label="Email", max_lines=1, width=280, hint_text="Enter email here")
@@ -45,7 +48,7 @@ class Authentication:
             self.password_tb.label = "Password"
         if flag:
             result = requests.get("http://127.0.0.1:5555/authenticate",
-                        params={"email": self.email_tb.value, "username": self.username_tb.value, "password": self.password_tb.value}).json()
+                            params={"email": self.email_tb.value, "username": self.username_tb.value, "password": self.password_tb.value}).json()
             response = result["response"]
             print(response)
             if response == "Username doesnt exist!":
@@ -73,12 +76,13 @@ class Authentication:
             else:
                 self.password_tb.border_color = ft.colors.SURFACE_VARIANT
                 self.password_tb.label = "Password"
-            if response == "Signed up successfully!":
-                pass
+            if response == "Signing in...":
+                self.details["username"] = self.username_tb.value
+                self.details["email"] = self.email_tb.value
+                time.sleep(1)
+                self.page.go('/user_landing_page')
         self.page.update()
         # redirect to another page
-
-
 
     def main(self) -> None:
         # page.scroll = ft.ScrollMode.HIDDEN
@@ -89,12 +93,8 @@ class Authentication:
         #     icon=ft.icons.ADD, on_click=self.fab_pressed, bgcolor=ft.colors.BLUE_200)
 
 
-
-
-def authentication_view(page: ft.Page):
-    page = Authentication(page)
-    return page.column
-
+def authentication_view(page: ft.Page, router):
+    return Authentication(page, router)
 
 
 
