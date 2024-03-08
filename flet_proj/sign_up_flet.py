@@ -1,11 +1,13 @@
 import flet as ft
 import requests
-from typing import Union
+import time
 
 
 class SignUP:
-    def __init__(self, page):
+    def __init__(self, page: ft.Page, router):
+        self.router = router
         self.page = page
+        self.details: dict[str, str] = {"username": "", "email": ""}
         self.username_tb = ft.TextField(label="Username", max_lines=1, width=280, hint_text="Enter username here")
         self.email_tb = ft.TextField(label="Email", max_lines=1, width=280, hint_text="Enter email here")
         self.password_tb = ft.TextField(label="Password", password=True, can_reveal_password=True, max_lines=1, width=280, hint_text="Enter password here")
@@ -18,6 +20,7 @@ class SignUP:
         result = requests.get("http://127.0.0.1:5555/sign_up",
                               params={"email": self.email_tb.value, "username": self.username_tb.value,
                                       "password": self.password_tb.value}).json()
+        user_information = {"email": self.email_tb.value, "username": self.username_tb.value, "password": self.password_tb.value}
         # result = sa.sign_up(self.email_tb.value, self.username_tb.value, self.password_tb.value)
         response = result["response"]
         print(response)
@@ -50,7 +53,10 @@ class SignUP:
             self.email_tb.label = "Email"
         self.page.update()
         if response == "Signed up successfully!":
-            pass
+            self.details["username"] = self.username_tb.value
+            self.details["email"] = self.email_tb.value
+            time.sleep(1)
+            self.page.go('/user_landing_page')
     # def show_nav_drawer(self, e, page):
     #     nav_drawer.open = True
     #     nav_drawer.update()
@@ -65,11 +71,8 @@ class SignUP:
         #     icon=ft.icons.ADD, on_click=self.fab_pressed, bgcolor=ft.colors.BLUE_200)
 
 
-
-def sign_up_view(page: ft.Page):
-    page = SignUP(page)
-    return page.column
-
+def sign_up_view(page: ft.Page, router) -> SignUP:
+    return SignUP(page, router)
 
 
 
