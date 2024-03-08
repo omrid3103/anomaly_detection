@@ -100,6 +100,7 @@ def sign_up(email: str, username: str, password: str) -> dict:
 
 
 
+
 def main():
     # query0 = sqlalchemy.insert(Authentication).values(Email='omrid3103@gmail.com', Username='Omri', Password='oiedvdi')
     # session.execute(query0)
