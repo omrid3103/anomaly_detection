@@ -20,13 +20,6 @@ class Router:
         self.home = initial_page_view(self.page)
 
         self.user_landing = user_landing_view(self.page)
-        if self.sign_up_controller.details["username"] == "":
-            self.user_landing.details = self.sign_in_controller.details
-
-        else:
-            self.user_landing.details = self.sign_up_controller.details
-
-        self.user_landing.update_text()
 
         self.routes = {
             "/index": self.index.content,
@@ -36,6 +29,20 @@ class Router:
             "/user_landing_page": self.user_landing.content
         }
         self.body = ft.Container(content=self.routes["/home"])
+
+    def update_credentials(self) -> None:
+
+        if self.sign_in_controller.details["username"] == "":
+            self.sign_up_controller.update_details()
+            self.user_landing.details["username"] = self.sign_up_controller.details["username"]
+            self.user_landing.details["email"] = self.sign_up_controller.details["email"]
+
+        else:
+            self.sign_in_controller.update_details()
+            self.user_landing.details["username"] = self.sign_in_controller.details["username"]
+            self.user_landing.details["email"] = self.sign_in_controller.details["email"]
+
+        self.user_landing.update_text()
 
     def route_change(self, route):
         self.body.content = self.routes[route.route]
