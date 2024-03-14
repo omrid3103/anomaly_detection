@@ -5,9 +5,10 @@ from typing import Union
 
 
 class Authentication:
-    def __init__(self, page):
+    def __init__(self, page, router):
         self.details: dict[str, str] = {"username": "", "email": ""}
         self.page = page
+        self.router = router
         self.username_tb = ft.TextField(label="Username", max_lines=1, width=280, hint_text="Enter username here")
         self.email_tb = ft.TextField(label="Email", max_lines=1, width=280, hint_text="Enter email here")
         self.password_tb = ft.TextField(label="Password", password=True, can_reveal_password=True, max_lines=1, width=280, hint_text="Enter password here")
@@ -15,6 +16,12 @@ class Authentication:
         self.items = [self.username_tb, self.email_tb, self.password_tb, self.submit_button]
         self.column = ft.Column(spacing=20, controls=self.items)
         # example_tb2 = ft.TextField(label="Disabled", disabled=True, read_only=True, hint_text="Please enter text here", icon=ft.icons.EMOJI_EMOTIONS, value="First name")
+
+    def update_details(self):
+        print(self.username_tb.value, self.email_tb.value)
+
+        self.details["username"] = self.username_tb.value
+        self.details["email"] = self.email_tb.value
 
     def sign_in_button_clicked(self, e):
         flag = True
@@ -76,10 +83,10 @@ class Authentication:
                 self.password_tb.border_color = ft.colors.SURFACE_VARIANT
                 self.password_tb.label = "Password"
             if response == "Signing in...":
-                self.details["username"] = self.username_tb.value
-                self.details["email"] = self.email_tb.value
+                self.update_details()
                 time.sleep(1)
                 self.page.go('/user_landing_page')
+                self.router.update_credentials()
         self.page.update()
 
         # redirect to another page
@@ -121,10 +128,10 @@ class Authentication:
             self.email_tb.label = "Email"
         self.page.update()
         if response == "Signed up successfully!":
-            self.details["username"] = self.username_tb.value
-            self.details["email"] = self.email_tb.value
+            self.update_details()
             time.sleep(1)
             self.page.go('/user_landing_page')
+            self.router.update_credentials()
 
     def main(self) -> None:
         # page.scroll = ft.ScrollMode.HIDDEN
@@ -136,8 +143,7 @@ class Authentication:
 
 
 def authentication_view(page: ft.Page, router):
-    return Authentication(page)
-
+    return Authentication(page, router)
 
 
 
