@@ -9,19 +9,18 @@ class AppBar:
             controls=[
                 ft.Container(height=12),
                 ft.NavigationDrawerDestination(
-                    icon_content=ft.TextButton("Home", icon=ft.icons.HOME, icon_color=ft.colors.BLUE_300, on_click=lambda _: page.go('/home')),
+                    icon_content=ft.TextButton("Home", icon=ft.icons.HOME, icon_color=ft.colors.BLUE_300, on_click=lambda _: self.page.go('/home')),
                 ),
                 ft.NavigationDrawerDestination(
-                    icon_content=ft.TextButton("Sign Up", icon=ft.icons.DOOR_BACK_DOOR, icon_color=ft.colors.BLUE_300, on_click=lambda _: page.go('/sign_up_flet')),
+                    icon_content=ft.TextButton("Sign Up", icon=ft.icons.DOOR_BACK_DOOR, icon_color=ft.colors.BLUE_300, on_click=lambda _: self.page.go('/sign_up_flet')),
                 ),
                 ft.NavigationDrawerDestination(
-                    icon_content=ft.TextButton("Sign In", icon=ft.icons.LOCK_OPEN, icon_color=ft.colors.BLUE_300, on_click=lambda _: page.go('/authentication_flet')),
+                    icon_content=ft.TextButton("Sign In", icon=ft.icons.LOCK_OPEN, icon_color=ft.colors.BLUE_300, on_click=lambda _: self.page.go('/authentication_flet')),
                 ),
                 ft.NavigationDrawerDestination(
-                    icon_content=ft.TextButton("About Us", icon=ft.icons.INFO, icon_color=ft.colors.BLUE_300, on_click=lambda _: page.go('/index')),
+                    icon_content=ft.TextButton("About Us", icon=ft.icons.INFO, icon_color=ft.colors.BLUE_300, on_click=lambda _: self.page.go('/index')),
                 ),
             ],
-
         )
         self.page.drawer = self.menu
         self.menu_text = ft.TextButton("Menu", icon=ft.icons.MENU, icon_color=ft.colors.BLACK, on_click=self.show_menu)
@@ -59,6 +58,14 @@ class AppBar:
         self.page.drawer = self.menu
         self.page.update()
 
+    def update_menu(self, e=None):
+        destinations_list = [
+            ft.NavigationDrawerDestination(
+                icon_content=ft.TextButton("home", icon=ft.icons.HOME, icon_color=ft.colors.BLUE_300,
+                                           on_click=lambda _: self.page.go('/user_action_page')),
+            )
+        ]
+        self.my_appbar.controls = destinations_list
 
 
 
