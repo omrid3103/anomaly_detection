@@ -7,12 +7,13 @@ class UserPage:
     def __init__(self, page: ft.Page):
         self.page: ft.Page = page
         self.details: dict[str, str] = {"username": "", "email": ""}
+        self.title_text = ft.Text("Welcome to my site", size=30)
         self.username_text = ft.Text(f"{self.details['username']}", size=30, color=ft.colors.CYAN)
         self.content = ft.Column(
             [
                 ft.Row(
                     [
-                        ft.Text("Welcome to my site", size=30),
+                        self.title_text,
                         self.username_text
                     ],
                     alignment=ft.MainAxisAlignment.CENTER
