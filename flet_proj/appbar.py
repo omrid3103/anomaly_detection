@@ -48,7 +48,7 @@ class AppBar:
             self.menu_text.icon_color = ft.colors.BLACK
         else:
             self.page.theme_mode = "dark"
-            self.theme_icon.icon = ft.icons.NIGHTLIGHT_OUTLINED
+            self.theme_icon.icon = ft.icons.MODE_NIGHT_OUTLINED
             self.theme_icon.icon_color = ft.colors.WHITE
             self.title_text.color = ft.colors.WHITE
             self.menu_text.icon_color = ft.colors.WHITE
