@@ -8,7 +8,7 @@ def main(page: ft.Page):
 
     page.theme_mode = "light"
 
-    page.appbar = appbar(page)
+    page.appbar = AppBar(page).my_appbar
     my_router = Router(page)
 
     page.on_route_change = my_router.route_change
