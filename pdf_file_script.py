@@ -7,46 +7,52 @@ import random
 
 
 transactions_fields_list = ["Food", "Clothing", "Leisure", "Lodging", "Rent", "Taxes", "Insurance", "Utilities", "Transportation", "Pension", "Accessories"]
-weights = [0.13, 0.19, 0.2, 0.05, 0.01, 0.02, 0.02, 0.10, 0.18, 0.02, 0.08]
+weights = [0.17, 0.17, 0.16, 0.03, 0.03, 0.03, 0.03, 0.10, 0.18, 0.03, 0.08]
 
 
 # Function to generate random dates
 def random_date(start_date, end_date):
     delta = end_date - start_date
     random_days = random.randint(0, delta.days)
-    return start_date + timedelta(days=random_days)
+    random_hours = random.randint(0, 24)
+    random_minutes = random.randint(0, 60)
+    return start_date + timedelta(days=random_days, hours=random_hours, minutes=random_minutes)
+
+
+def generate_price(field: str) -> float:
+    amount = 0.0
+    if field == "Food" or field == "Clothing" or field == "Utilities" or field == "Accessories" or field == "Pension" or field == "Insurance":
+        amount = round(random.uniform(20, 400), 2)  # Random transaction value
+    if field == "Leisure" or field == "Lodging":
+        amount = round(random.uniform(500, 1200), 2)
+    if field == "Rent":
+        amount = 3500.0
+    if field == "Taxes":
+        amount = round(random.uniform(1500, 2000), 2)
+    if field == "Transportation":
+        amount = round(random.uniform(5, 40), 2)
+    return amount
 
 
 # Function to generate data for the table
 def generate_data(rows):
     data = []
-    amount = 0.0
     start_date = datetime.now()
     end_date = start_date + timedelta(days=30)
     for i in range(rows):
-        row_data = [
-            i + 1,  # Counting index
-            random_date(start_date, end_date).strftime('%d/%m %H:%M'),  # Random date
-            random.choices(transactions_fields_list, weights, k=1),  # Random location
-        ]
-        if row_data[2] == "Food" or row_data[2] == "Clothing" or row_data[2] == "Utilities" or row_data[2] == "Accessories" or row_data[2] == "Pension" or row_data[2] == "Insurance":
-            amount = round(random.uniform(20, 400), 2)  # Random transaction value
-        if row_data[2] == "Leisure" or row_data[2] == "Lodging":
-            amount = round(random.uniform(500, 1200), 2)
-        if row_data[2] == "Rent":
-            amount = 3500.0
-        if row_data[2] == "Taxes":
-            amount = round(random.uniform(1500, 2000), 2)
-        if row_data[2] == "Transportation":
-            amount = round(random.uniform(5, 40), 2)
-        row_data.append(amount)
-        row_data.append(random.choice(["Yes", "No"]))  # Was card shown
+        index: int = i + 1  # Counting index
+        date = random_date(start_date, end_date).strftime('%d/%m %H:%M')  # Random date
+        field: str = random.choices(transactions_fields_list, weights, k=1)[0]  # Random location
+        price: float = generate_price(field)  # Random transaction value
+        was_card_shown: str = random.choice(["Yes", "No"])  # Was card shown
+        row_data = [index, date, field, price, was_card_shown]
         data.append(row_data)
     return data
 
 
 # Create data for the table
-data = generate_data(100)
+data = generate_data(40)
+print(data)
 
 # Add column headers
 data.insert(0, ["Counting Index", "Date", "Location", "Transaction", "Was Card Shown"])
