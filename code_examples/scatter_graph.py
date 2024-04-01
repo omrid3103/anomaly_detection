@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from kmeans_clustering import kmc
+from kmc_files.kmeans_clustering import kmc
 
 points_coordinates = np.random.uniform(1, 20, (150, 2))
 centers_coordinates = np.random.uniform(1, 20, (5, 2))

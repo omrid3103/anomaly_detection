@@ -1,6 +1,5 @@
 import sqlalchemy
 from sqlalchemy.orm.session import sessionmaker
-from pandas_eg import df
 
 engine = sqlalchemy.create_engine('sqlite:///datacamp.sqlite')
 conn = engine.connect()

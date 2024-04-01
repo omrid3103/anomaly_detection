@@ -1,6 +1,5 @@
 import numpy as np
-import matplotlib.pyplot as plt
-from kmeans_clustering import *
+from kmc_files.kmeans_clustering import *
 
 
 def silhouette_score(points_array: np.ndarray, centers_array: np.ndarray, grouping_list: list[list[int]]) -> float:
