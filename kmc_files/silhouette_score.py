@@ -1,5 +1,6 @@
 import numpy as np
 from kmc_files.kmeans_clustering import *
+from kmc_files.kmeans_proj import kmeans_proj_main
 
 
 def silhouette_score(points_array: np.ndarray, centers_array: np.ndarray, grouping_list: list[list[int]]) -> float:
@@ -41,8 +42,7 @@ def silhouette_score(points_array: np.ndarray, centers_array: np.ndarray, groupi
     return silhouette_i_score
 
 
-def most_efficient_n_of_clusters(max_clusters_to_check: int) -> int:
-    points_coordinates = np.random.uniform(19.5, 20, (200, 2))
+def most_efficient_n_of_clusters(points_coordinates: np.ndarray, max_clusters_to_check: int) -> int:
     silhouette_scores_list = []
     for i in range(2, max_clusters_to_check + 1):
         random_indices = np.random.choice(points_coordinates.shape[0], size=i, replace=False)
@@ -55,7 +55,8 @@ def most_efficient_n_of_clusters(max_clusters_to_check: int) -> int:
 
 
 def main():
-    print(most_efficient_n_of_clusters(10))
+    points_coordinates = kmeans_proj_main()
+    print(most_efficient_n_of_clusters(points_coordinates, 5))
 
 
 if __name__ == "__main__":

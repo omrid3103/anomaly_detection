@@ -4,6 +4,7 @@ import math
 from datetime import datetime, timedelta
 import random
 import pandas as pd
+from db_and_pdf_demo.pdf_to_pandas import csv_to_dataframe, CSV_FILE_PATH
 
 
 #
@@ -34,9 +35,8 @@ amount = [round(random.uniform(0.5, 201), 1) for _ in range(149)]
 was_card_shown = [random.choice(yes_or_no) for _ in range(149)]
 df_dict = {'date': date, 'location': location, 'amount': amount, 'was_card_shown': was_card_shown}
 
-
-LOCATIONS: dict[str, float] = {}
-DATA_TABLE: pd.DataFrame = pd.DataFrame(df_dict)
+DATA_TABLE: pd.DataFrame = csv_to_dataframe(CSV_FILE_PATH)
+LOCATIONS = {}
 
 
 
@@ -53,7 +53,7 @@ class KMeansRow:
             self.was_card_shown: bool = False
 
     def time_of_transaction(self) -> float:
-        datetime_object = datetime.strptime(self.date_str, '%d/%m %H:%M')
+        datetime_object = datetime.strptime(self.date_str, '%d/%m-%H:%M')
         datetime_object = datetime_object.strftime('%H:%M')
         datetime_object = datetime.strptime(datetime_object, '%H:%M')
         group_0 = datetime.strptime('00:00', '%H:%M')
@@ -108,8 +108,8 @@ class KMeansTable:
         internal_list: list[float] = []
         rows_array = np.zeros([len(self.table), 4])
         for i, r in self.table.iterrows():
-            print(r)
-            row = KMeansRow(r["date"], r["location"], r["amount"], r["was_card_shown"])
+            # print(r)
+            row = KMeansRow(r["Date"], r["Location"], r["Transaction"], r["Was-Card-Shown"])
             internal_list = [row.time_of_transaction(), row.location(), row.amount, row.show_of_card()]
             row_arr = np.array(internal_list)
             rows_array[i, :] = row_arr
@@ -117,11 +117,16 @@ class KMeansTable:
 
 
 
-class kMeansClustering:
-    pass
+
+def kmeans_proj_main():
+    # print(DATA_TABLE)
+    k_table = KMeansTable()
+    table_arr = k_table.define_features()
+    # for i, r in enumerate(table_arr):
+    #     print(i, r)
+    # print(type(table_arr))
+    return table_arr
 
 
-k_table = KMeansTable()
-table_arr = k_table.define_features()
-for i, r in enumerate(table_arr):
-    print(i, r)
+if __name__ == "__main__":
+    kmeans_proj_main()

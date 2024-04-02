@@ -1,10 +1,13 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from kmc_files.kmeans_clustering import kmc
+from kmc_files.kmeans_proj import main
 
-points_coordinates = np.random.uniform(1, 20, (150, 2))
-centers_coordinates = np.random.uniform(1, 20, (5, 2))
-
+points_coordinates = main()
+print(points_coordinates)
+random_indices = np.random.choice(points_coordinates.shape[0], size=5, replace=False)
+centers_coordinates = points_coordinates[random_indices]
+print(centers_coordinates)
 grouping_list = []
 
 ITERATIONS = 5

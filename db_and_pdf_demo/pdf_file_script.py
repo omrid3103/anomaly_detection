@@ -7,7 +7,7 @@ import random
 
 
 transactions_fields_list = ["Food", "Clothing", "Leisure", "Lodging", "Rent", "Taxes", "Insurance", "Utilities", "Transportation", "Pension", "Accessories"]
-weights = [0.17, 0.17, 0.16, 0.03, 0.03, 0.03, 0.03, 0.10, 0.18, 0.03, 0.08]
+weights = [0.16, 0.15, 0.15, 0.04, 0.04, 0.04, 0.04, 0.09, 0.17, 0.04, 0.08]
 
 
 # Function to generate random dates
@@ -40,12 +40,11 @@ def generate_data(rows):
     start_date = datetime.now()
     end_date = start_date + timedelta(days=30)
     for i in range(rows):
-        index: int = i + 1  # Counting index
-        date = random_date(start_date, end_date).strftime('%d/%m %H:%M')  # Random date
+        date = random_date(start_date, end_date).strftime('%d/%m-%H:%M')  # Random date
         field: str = random.choices(transactions_fields_list, weights, k=1)[0]  # Random location
         price: float = generate_price(field)  # Random transaction value
         was_card_shown: str = random.choice(["Yes", "No"])  # Was card shown
-        row_data = [index, date, field, price, was_card_shown]
+        row_data = [date, field, price, was_card_shown]
         data.append(row_data)
     return data
 
@@ -55,7 +54,7 @@ data = generate_data(40)
 print(data)
 
 # Add column headers
-data.insert(0, ["Counting Index", "Date", "Location", "Transaction", "Was Card Shown"])
+data.insert(0, ["Date", "Location", "Transaction", "Was-Card-Shown"])
 
 # Create pandas DataFrame
 df = pd.DataFrame(data)
@@ -65,7 +64,8 @@ pdf_filename = "data_table.pdf"
 doc = SimpleDocTemplate(pdf_filename, pagesize=letter)
 
 # Convert DataFrame to list of lists
-table_data = [df.columns.values.tolist()] + df.values.tolist()
+# table_data = [df.columns.values.tolist()] + df.values.tolist()
+table_data = df.values.tolist()
 
 # Create table
 table = Table(table_data)
