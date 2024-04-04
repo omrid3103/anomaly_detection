@@ -44,19 +44,19 @@ def silhouette_score(points_array: np.ndarray, centers_array: np.ndarray, groupi
 
 def most_efficient_n_of_clusters(points_coordinates: np.ndarray, max_clusters_to_check: int) -> int:
     silhouette_scores_list = []
+    random_indices = np.random.choice(points_coordinates.shape[0], size=max_clusters_to_check, replace=False)
+    centers_coordinates = points_coordinates[random_indices]
     for i in range(2, max_clusters_to_check + 1):
-        random_indices = np.random.choice(points_coordinates.shape[0], size=i, replace=False)
-        centers_coordinates = points_coordinates[random_indices]
-        _, grouping_list = kmc(points_coordinates, centers_coordinates, i, 20)
-        silhouette_scores_list.append(silhouette_score(points_coordinates, centers_coordinates, grouping_list))
-        print(i, silhouette_score(points_coordinates, centers_coordinates, grouping_list))
+        updated_centers, grouping_list = kmc(points_coordinates, centers_coordinates[:i, :], i, 20)
+        silhouette_scores_list.append(silhouette_score(points_coordinates, updated_centers, grouping_list))
+        print(i, silhouette_score(points_coordinates, updated_centers, grouping_list))
     silhouette_scores_array = np.array(silhouette_scores_list)
     return silhouette_scores_array.argmax() + 2
 
 
 def main():
     points_coordinates = kmeans_proj_main()
-    print(most_efficient_n_of_clusters(points_coordinates, 5))
+    print(most_efficient_n_of_clusters(points_coordinates, 10))
 
 
 if __name__ == "__main__":
