@@ -12,7 +12,7 @@ class Authentication:
         self.username_tb = ft.TextField(label="Username", max_lines=1, width=280, hint_text="Enter username here")
         self.email_tb = ft.TextField(label="Email", max_lines=1, width=280, hint_text="Enter email here")
         self.password_tb = ft.TextField(label="Password", password=True, can_reveal_password=True, max_lines=1, width=280, hint_text="Enter password here")
-        self.submit_button = ft.ElevatedButton()
+        self.submit_button = ft.ElevatedButton(text="Submit")
         self.items = [self.username_tb, self.email_tb, self.password_tb, self.submit_button]
         self.column = ft.Column(spacing=20, controls=self.items)
         # example_tb2 = ft.TextField(label="Disabled", disabled=True, read_only=True, hint_text="Please enter text here", icon=ft.icons.EMOJI_EMOTIONS, value="First name")
@@ -22,6 +22,7 @@ class Authentication:
 
         self.details["username"] = self.username_tb.value
         self.details["email"] = self.email_tb.value
+
 
     def sign_in_button_clicked(self, e):
         flag = True

@@ -8,7 +8,6 @@ from flet_proj.appbar import AppBar
 def main(page: ft.Page):
 
     page.theme_mode = "light"
-
     my_router = Router(page)
     temp_appbar = AppBar(page)
     if my_router.user_landing.details["username"] != "":
