@@ -41,17 +41,17 @@ def pdf_to_csv(pdf_file_path: str) -> None:
             all_table_data.extend(table_data)
 
     # Write the combined table data to a CSV file
-    with open('output.csv', 'w', newline='', encoding='utf-8') as csvfile:
+    with open('output2.csv', 'w', newline='', encoding='utf-8') as csvfile:
         csv_writer = csv.writer(csvfile)
         csv_writer.writerows(all_table_data)
 
     # Write the combined table data to a CSV file
-    with open('output.csv', 'w', newline='') as csvfile:
+    with open('output2.csv', 'w', newline='') as csvfile:
         csv_writer = csv.writer(csvfile)
         csv_writer.writerows(all_table_data)
 
     # Write the combined table data to a CSV file
-    with open('output.csv', 'w', newline='') as csvfile:
+    with open('output2.csv', 'w', newline='') as csvfile:
         csv_writer = csv.writer(csvfile)
         csv_writer.writerows(all_table_data)
 
@@ -62,9 +62,9 @@ def csv_to_dataframe(csv_file_path: str) -> pd.DataFrame:
 
 
 def main():
-    # pdf_to_csv()
-    df: pd.DataFrame = csv_to_dataframe(CSV_FILE_PATH)
-    print(df)
+    pdf_to_csv(PDF_FILE_PATH)
+    # df: pd.DataFrame = csv_to_dataframe(CSV_FILE_PATH)
+    # print(df)
 
 
 if __name__ == "__main__":

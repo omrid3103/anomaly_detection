@@ -3,7 +3,7 @@ from typing import Union
 import flet as ft
 from flet_proj.authentication_flet import authentication_view
 from flet_proj.user_landing_page import user_landing_view
-from flet_proj.initial_page import initial_page_view
+from tests.appbar import AppBar
 
 
 class Router:
@@ -11,11 +11,11 @@ class Router:
     def __init__(self, page):
         self.page = page
         self.sign_up_controller = authentication_view(self.page, self)
-        # self.sign_up_controller.submit_button.on_click = self.sign_up_controller.sign_up_button_clicked
-        # self.sign_up_controller.submit_button.text = "Sign Me Up!"
+        self.sign_up_controller.submit_button.on_click = self.sign_up_controller.sign_up_button_clicked
+        self.sign_up_controller.submit_button.text = "Sign Me Up!"
         self.sign_in_controller = authentication_view(self.page, self)
-        # self.sign_in_controller.submit_button.on_click = self.sign_in_controller.sign_in_button_clicked
-        # self.sign_in_controller.submit_button.text = "Sign Me In!"
+        self.sign_in_controller.submit_button.on_click = self.sign_in_controller.sign_in_button_clicked
+        self.sign_in_controller.submit_button.text = "Sign Me In!"
         self.index = self.initial_page
         self.home = self.initial_page
         self.user_landing = user_landing_view(self.page)
@@ -75,3 +75,22 @@ class Router:
     def route_change(self, route):
         self.body.content = self.routes[route.route]
         self.body.update()
+
+
+def main(page: ft.Page):
+
+    page.theme_mode = "light"
+    my_router = Router(page)
+    temp_appbar = AppBar(page)
+    if my_router.user_landing.details["username"] != "":
+        temp_appbar.update_menu()
+    page.appbar = temp_appbar.my_appbar
+
+    page.on_route_change = my_router.route_change
+
+    page.add(my_router.body)
+    page.go("/home")
+
+
+if __name__ == "__main__":
+    ft.app(target=main)

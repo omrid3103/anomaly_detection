@@ -50,7 +50,7 @@ def generate_data(rows):
 
 
 # Create data for the table
-data = generate_data(40)
+data = generate_data(900)
 print(data)
 
 # Add column headers
@@ -60,7 +60,7 @@ data.insert(0, ["Date", "Location", "Transaction", "Was-Card-Shown"])
 df = pd.DataFrame(data)
 
 # Create PDF
-pdf_filename = "data_table.pdf"
+pdf_filename = "data_table2.pdf"
 doc = SimpleDocTemplate(pdf_filename, pagesize=letter)
 
 # Convert DataFrame to list of lists
