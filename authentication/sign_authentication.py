@@ -99,6 +99,36 @@ def sign_up(email: str, username: str, password: str) -> dict:
         return {"response": "Signed up successfully!"}
 
 
+@app.get("/update_information")
+def update_information(old_username: str, new_username: str, new_email: str, new_password: str) -> dict:
+    user_auth = Authentication.select().where(Authentication.columns.Username == old_username)
+    user_auth = session.execute(user_auth).fetchall()
+    username_query: bool = user_auth == []
+    if username_query:
+        return {"response": "Username doesn't exist!"}
+    other_user_username = Authentication.select().where(Authentication.columns.Username == new_username)
+    other_user_username = session.execute(other_user_username).fetchall()
+    username_query = other_user_username == []
+    if not username_query or new_username == '' or new_username == " " or len(new_username) <= 5:
+        return {"response": "Username Taken!"}
+    if not validate_email(new_email):
+        return {"response": "Invalid email address!"}
+    email_auth = Authentication.select().where(Authentication.columns.Email == new_email)
+    email_auth = session.execute(email_auth).fetchall()
+    email_query: bool = email_auth == []
+    if not email_query:
+        return {"response": "Account with the same email exists!"}
+        # add in flet a way to allow rewriting the accounts details and rerunning the function
+    if new_password == "" or new_password == " ":
+        return {"response": "Invalid password!"}
+    else:
+        pass_hash = hashlib.sha256(new_password.encode()).hexdigest()
+        update_query = sqlalchemy.update(Authentication).where(Authentication.columns.Username == old_username).values(Email=new_email, Username=new_username, Password=pass_hash)
+        session.execute(update_query)
+        session.commit()
+        return {"response": "Details Updated Successfully!"}
+
+
 
 
 def main():
