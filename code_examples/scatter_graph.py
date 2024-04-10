@@ -1,13 +1,15 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from kmc_files.kmeans_clustering import kmc
-from kmc_files.kmeans_proj import main
+from kmc_files.kmeans_proj import kmeans_proj_main
 
-points_coordinates = main()
+points_coordinates = kmeans_proj_main()
 print(points_coordinates)
+points_coordinates_3d = points_coordinates[:, :3]
 random_indices = np.random.choice(points_coordinates.shape[0], size=5, replace=False)
 centers_coordinates = points_coordinates[random_indices]
 print(centers_coordinates)
+centers_coordinates_3d = centers_coordinates[:, :3]
 grouping_list = []
 
 ITERATIONS = 5

@@ -34,7 +34,7 @@ class UploadFile:
         self.files.current.controls.clear()
         if e.files is not None:
             for f in e.files:
-                prog = ft.ProgressRing(value=0, bgcolor="#eeeeee", width=20, height=20)
+                prog = ft.ProgressRing(value=0, bgcolor=ft.colors.BLUE_400, width=20, height=20)
                 self.prog_bars[f.name] = prog
                 self.files.current.controls.append(ft.Row([prog, ft.Text(f.name)]))
         self.page.update()
@@ -47,6 +47,7 @@ class UploadFile:
         uf = []
         if self.file_picker.result is not None and self.file_picker.result.files is not None:
             for f in self.file_picker.result.files:
+                print(f.name)
                 uf.append(
                     ft.FilePickerUploadFile(
                         f.name,
@@ -64,6 +65,6 @@ def main(page: ft.Page):
 
 
 
-ft.app(target=main, upload_dir="uploads")
+ft.app(target=main, upload_dir="my_uploads")
 
 
