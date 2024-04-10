@@ -1,0 +1,16 @@
+
+
+
+backend:
+    - At the moment, the uploading of the client's table PDF file doesnt work. As I see it there are three solutions:
+        1. Find a way to fix it through the flet
+        2. Try to find another way to transfer the file through the flet
+        3. Use a socket-based client & server communicating way (& by doing so, fulfilling the instructions' requirement)
+
+    - Writing the code for the features that I intended to have at the beginning like OTP authentication and interactive user screen
+
+Frontend (UI):
+    - Designing in a more decorative, attractive way the user's screens & pages
+
+    - Keep on connecting the codes that Ive written in the backend with the flet code & routing system
+
