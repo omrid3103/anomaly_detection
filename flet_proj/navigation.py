@@ -50,12 +50,16 @@ class UserMenu:
         self.user_menu = ft.NavigationBar(
             destinations=[
                 ft.NavigationDestination(
-                    icon_content=ft.TextButton("Home", icon=ft.icons.HOME, icon_color=ft.colors.BLUE_300,
+                    icon_content=ft.TextButton("Home", icon=ft.icons.HOME, icon_color=ft.colors.BLUE_400,
                                                on_click=lambda _: page.go("/user_home"))
                 ),
                 ft.NavigationDestination(
-                    icon_content=ft.TextButton("Personal Info", icon=ft.icons.DETAILS, icon_color=ft.colors.BLUE_300,
+                    icon_content=ft.TextButton("Personal Info", icon=ft.icons.SUPERVISED_USER_CIRCLE_ROUNDED, icon_color=ft.colors.BLUE_400,
                                                on_click=lambda _: page.go("/update_details"))
+                ),
+                ft.NavigationDestination(
+                    icon_content=ft.TextButton("Insert File", icon=ft.icons.ATTACH_FILE, icon_color=ft.colors.BLUE_400,
+                                               on_click=lambda _: page.go("/client_kmc"))
                 ),
             ]
         )

@@ -1,63 +1,33 @@
 import flet as ft
-import requests
 
 
-class UserPage:
+class FilePicker:
 
     def __init__(self, page: ft.Page):
         self.page: ft.Page = page
-        self.details: dict[str, str] = {"username": "", "email": ""}
-        self.title_text = ft.Text("Welcome to my site", size=30)
-        self.username_text = ft.Text(f"{self.details['username']}", size=30, color=ft.colors.CYAN)
-        self.content = ft.Column(
+        self.pick_files_dialog = ft.FilePicker(on_result=self.pick_files_result)
+        self.selected_files = ft.Text()
+        self.page.overlay.append(self.pick_files_dialog)
+        self.row = ft.Row(
             [
-                ft.Row(
-                    [
-                        self.title_text,
-                        self.username_text
-                    ],
-                    alignment=ft.MainAxisAlignment.CENTER
+                ft.ElevatedButton(
+                    "Pick files",
+                    icon=ft.icons.UPLOAD_FILE,
+                    on_click=lambda _: self.pick_files_dialog.pick_files(
+                        allow_multiple=True
+                    ),
                 ),
-                ft.Row(
-                    [
-                        ft.TextButton("Exit", icon=ft.icons.CLOSE, icon_color="red")
-                    ]
-                )
+                self.selected_files,
             ]
         )
+        self.items = [self.row, self.selected_files]
+        self.content = ft.Column(spacing=20, controls=self.items)
 
-    def update_text(self):
-        self.username_text.value = f"{self.details['username']}"
-        self.page.update()
+    def pick_files_result(self, e: ft.FilePickerResultEvent):
+        self.selected_files.value = (
+            ", ".join(map(lambda f: f.name, e.files)) if e.files else "Cancelled!"
+        )
+        self.selected_files.update()
 
 
-    def exit_app(self, e):
-        self.page.window_destroy()
 
-
-def user_landing_view(page):
-    return UserPage(page)
-
-# ft.Stack(
-#     [
-#         ft.Image(
-#             src=f"https://www.google.com/url?sa=i&url=https%3A%2F%2Fgithub.com%2Fsaarques%2Fcredit-card-fraud-detection&psig=AOvVaw36lQIGiRMKl-u8F7BNT7nD&ust=1709835673312000&source=images&cd=vfe&opi=89978449&ved=0CBMQjRxqFwoTCND1i7Gg4IQDFQAAAAAdAAAAABAE",
-#             width=300,
-#             height=300,
-#             fit=ft.ImageFit.CONTAIN,
-#         ),
-#         ft.Row(
-#             [
-#                 ft.Text(
-#                     "Image title",
-#                     color="white",
-#                     size=40,
-#                     opacity=0.5,
-#                 )
-#             ],
-#             alignment=ft.MainAxisAlignment.CENTER,
-#         ),
-#     ],
-#     width=300,
-#     height=300,
-# )

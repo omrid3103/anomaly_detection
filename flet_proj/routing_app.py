@@ -1,6 +1,6 @@
 from flet_proj.authentication_flet import SignUp, SignIn, UpdateDetails
 from flet_proj.navigation import *
-
+from flet_proj.client_kmc import FilePicker
 
 
 class UserDetails:
@@ -23,6 +23,7 @@ def main(page: ft.Page):
     user_menu = UserMenu(page).user_menu
     sign_up = SignUp(page)
     sign_in = SignIn(page)
+    file_picker = FilePicker(page).content
 
 
     def insert_user_information(username: str, email: str, password: str):
@@ -85,7 +86,7 @@ def main(page: ft.Page):
         if page.route == "/update_details":
             page.views.append(
                 ft.View(
-                    "/user_home",
+                    "/update_details",
                     [
                         user_appbar,
                         user_menu,
@@ -95,6 +96,18 @@ def main(page: ft.Page):
             )
         if user_information.info["username"] != update_details.details["username"]:
             user_information.update_info(update_details.details["username"], update_details.details["email"], update_details.details["password"])
+
+        if page.route == "/client_kmc":
+            page.views.append(
+                ft.View(
+                    "client_kmc",
+                    [
+                        user_appbar,
+                        user_menu,
+                        file_picker,
+                    ]
+                )
+            )
         page.update()
 
     # def view_pop(view):
