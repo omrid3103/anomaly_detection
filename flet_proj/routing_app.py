@@ -2,9 +2,8 @@ from flet_proj.authentication_flet import SignUp, SignIn, UpdateDetails
 from flet_proj.navigation import *
 from flet_proj.client_kmc import FilePicker
 
-IP = "192.168.29.125"
-PORT = 5555
-URL = f"http://{IP}:{PORT}/"
+
+
 
 class UserDetails:
     def __init__(self, username: str, email: str, password: str):
@@ -16,7 +15,7 @@ class UserDetails:
         self.info["password"] = password
 
 
-def main(page: ft.Page):
+def main(page: ft.Page, url: str):
     page.title = "Routes Example"
 
     user_information = UserDetails("", "", "")
@@ -24,8 +23,8 @@ def main(page: ft.Page):
     guest_menu = GuestMenu(page).guest_menu
     user_appbar = UserAppBar(page).my_appbar
     user_menu = UserMenu(page).user_menu
-    sign_up = SignUp(page, URL)
-    sign_in = SignIn(page, URL)
+    sign_up = SignUp(page, url)
+    sign_in = SignIn(page, url)
     file_picker = FilePicker(page).content
 
 
@@ -74,7 +73,7 @@ def main(page: ft.Page):
             )
         insert_user_information(sign_up.details["username"], sign_up.details["email"], sign_up.details["password"])
         insert_user_information(sign_in.details["username"], sign_in.details["email"], sign_in.details["password"])
-        update_details = UpdateDetails(page, user_information.info["username"], user_information.info["email"], user_information.info["password"], URL)
+        update_details = UpdateDetails(page, user_information.info["username"], user_information.info["email"], user_information.info["password"], url)
         if page.route == "/user_home":
             page.views.append(
                 ft.View(
@@ -124,4 +123,7 @@ def main(page: ft.Page):
 
 
 if __name__ == "__main__":
-    ft.app(target=main)
+    IP = "192.168.29.125"
+    PORT = 5555
+    URL = f"http://{IP}:{PORT}/"
+    ft.app(target=lambda page: main(page=page, url=URL))
