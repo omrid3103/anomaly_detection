@@ -50,6 +50,8 @@ metadata.create_all(engine)
 
 
 """Completed sign-in method"""
+IP = '192.168.29.125'
+PORT = 5555
 
 
 @app.get("/authenticate")
@@ -129,6 +131,11 @@ def update_information(old_username: str, new_username: str, new_email: str, new
         return {"response": "Details Updated Successfully!"}
 
 
+@app.get("upload_files")
+def upload_files():
+    pass
+
+
 
 
 def main():
@@ -144,4 +151,4 @@ def main():
 
 if __name__ == '__main__':
     # main()
-    uvicorn.run(app, host="127.0.0.1", port=5555)
+    uvicorn.run(app, host=IP, port=PORT)

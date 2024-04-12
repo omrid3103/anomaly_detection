@@ -6,6 +6,7 @@ backend:
         1. Find a way to fix it through the flet
         2. Try to find another way to transfer the file through the flet
         3. Use a socket-based client & server communicating way (& by doing so, fulfilling the instructions' requirement)
+        4. *THE PREFERRED WAY* Use a fastAPI endpoint in order to upload files easily to the server
 
     - Writing the code for the features that I intended to have at the beginning like OTP authentication and interactive user screen
 

@@ -129,4 +129,4 @@ def kmeans_proj_main():
 
 
 if __name__ == "__main__":
-    kmeans_proj_main()
+    print(kmeans_proj_main())
