@@ -2,6 +2,9 @@ from flet_proj.authentication_flet import SignUp, SignIn, UpdateDetails
 from flet_proj.navigation import *
 from flet_proj.client_kmc import FilePicker
 
+IP = "192.168.29.125"
+PORT = 5555
+URL = f"http://{IP}:{PORT}/"
 
 class UserDetails:
     def __init__(self, username: str, email: str, password: str):
@@ -21,8 +24,8 @@ def main(page: ft.Page):
     guest_menu = GuestMenu(page).guest_menu
     user_appbar = UserAppBar(page).my_appbar
     user_menu = UserMenu(page).user_menu
-    sign_up = SignUp(page)
-    sign_in = SignIn(page)
+    sign_up = SignUp(page, URL)
+    sign_in = SignIn(page, URL)
     file_picker = FilePicker(page).content
 
 
@@ -71,7 +74,7 @@ def main(page: ft.Page):
             )
         insert_user_information(sign_up.details["username"], sign_up.details["email"], sign_up.details["password"])
         insert_user_information(sign_in.details["username"], sign_in.details["email"], sign_in.details["password"])
-        update_details = UpdateDetails(page, user_information.info["username"], user_information.info["email"], user_information.info["password"])
+        update_details = UpdateDetails(page, user_information.info["username"], user_information.info["email"], user_information.info["password"], URL)
         if page.route == "/user_home":
             page.views.append(
                 ft.View(

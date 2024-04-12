@@ -5,9 +5,10 @@ from typing import Union
 
 
 class SignUp:
-    def __init__(self, page):
+    def __init__(self, page: ft.Page, url: str):
         self.details: dict[str, str] = {"username": "", "email": "", "password": ""}
         self.page = page
+        self.request_url = url
         self.username_tb = ft.TextField(label="Username", max_lines=1, width=280, hint_text="Enter username here")
         self.email_tb = ft.TextField(label="Email", max_lines=1, width=280, hint_text="Enter email here", keyboard_type=ft.KeyboardType.EMAIL)
         self.password_tb = ft.TextField(label="Password", password=True, can_reveal_password=True, max_lines=1, width=280, hint_text="Enter password here")
@@ -17,7 +18,7 @@ class SignUp:
         # example_tb2 = ft.TextField(label="Disabled", disabled=True, read_only=True, hint_text="Please enter text here", icon=ft.icons.EMOJI_EMOTIONS, value="First name")
 
     def sign_up_button_clicked(self, e):
-        result = requests.get("http://127.0.0.1:5555/sign_up",
+        result = requests.get(f"{self.request_url}sign_up",
                               params={"email": self.email_tb.value, "username": self.username_tb.value, "password": self.password_tb.value}).json()
         user_information = {"email": self.email_tb.value, "username": self.username_tb.value, "password": self.password_tb.value}
         response = result["response"]
@@ -67,9 +68,10 @@ class SignUp:
 
 
 class SignIn:
-    def __init__(self, page):
+    def __init__(self, page, url):
         self.details: dict[str, str] = {"username": "", "email": "", "password": ""}
         self.page = page
+        self.request_url = url
         self.username_tb = ft.TextField(label="Username", max_lines=1, width=280, hint_text="Enter username here")
         self.email_tb = ft.TextField(label="Email", max_lines=1, width=280, hint_text="Enter email here", keyboard_type=ft.KeyboardType.EMAIL)
         self.password_tb = ft.TextField(label="Password", password=True, can_reveal_password=True, max_lines=1, width=280, hint_text="Enter password here")
@@ -109,7 +111,7 @@ class SignIn:
             self.password_tb.border_color = ft.colors.SURFACE_VARIANT
             self.password_tb.label = "Password"
         if flag:
-            result = requests.get("http://127.0.0.1:5555/authenticate",
+            result = requests.get(f"{self.request_url}authenticate",
                                   params={"email": self.email_tb.value, "username": self.username_tb.value, "password": self.password_tb.value}).json()
             response = result["response"]
             print(response)
@@ -157,9 +159,10 @@ class SignIn:
 
 
 class UpdateDetails:
-    def __init__(self, page: ft.Page, username: str, email: str, password: str):
+    def __init__(self, page: ft.Page, username: str, email: str, password: str, url):
         self.details: dict[str, str] = {"username": username, "email": email, "password": password}
         self.page = page
+        self.request_url = url
         self.title_text = ft.Text("Update Your Information, " + self.details["username"] + "")
         self.alert_message = ft.Text("No Detail Has Been Changed", color=ft.colors.RED_400)
         self.username_tb = ft.TextField(label="Username", max_lines=1, width=280, hint_text="Enter username here", value=self.details["username"])
@@ -176,7 +179,7 @@ class UpdateDetails:
             self.column.controls = self.items
             self.page.update()
         else:
-            result = requests.get("http://127.0.0.1:5555/update_information",
+            result = requests.get(f"{self.request_url}update_information",
                                   params={"old_username": self.details["username"], "new_username": self.username_tb.value, "new_email": self.email_tb.value,
                                           "new_password": self.password_tb.value}).json()
             response = result["response"]
