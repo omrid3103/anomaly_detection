@@ -48,6 +48,7 @@ class UploadFile:
         if self.file_picker.result is not None and self.file_picker.result.files is not None:
             for f in self.file_picker.result.files:
                 print(f.name)
+                print(type(f))
                 uf.append(
                     ft.FilePickerUploadFile(
                         f.name,

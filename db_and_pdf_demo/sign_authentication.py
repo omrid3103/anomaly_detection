@@ -2,8 +2,12 @@ import sqlalchemy
 from sqlalchemy.orm.session import sessionmaker
 import hashlib
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File
 from validate_email import validate_email
+import json
+from secrets import token_hex
+import tempfile
+import os
 
 
 app = FastAPI()
@@ -50,7 +54,7 @@ metadata.create_all(engine)
 
 
 """Completed sign-in method"""
-IP = '192.168.29.125'
+IP = '127.0.0.1'
 PORT = 5555
 
 
@@ -131,9 +135,26 @@ def update_information(old_username: str, new_username: str, new_email: str, new
         return {"response": "Details Updated Successfully!"}
 
 
-@app.get("upload_files")
-def upload_files():
-    pass
+@app.post("/upload_files")
+async def upload_files(file_bytes: bytes):
+    bytes_variable = file_bytes
+    with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_file:
+        temp_file.write(bytes_variable)
+        temp_file_path = temp_file.name
+
+    upload_file_object = UploadFile(filename='filename.pdf', file=open(temp_file_path, "rb"))
+
+    # os.remove(temp_file_path)
+    print(str(upload_file_object))
+    file_extension = upload_file_object.filename.split('.').pop()
+    file_name = 'client_data_table'
+    # file_name = token_hex(10)
+    file_path = f"{file_name}.{file_extension}"
+    with open(file_path, "wb") as f:
+        content = await upload_file_object.read()
+        f.write(content)
+    return {"success": True, "file_path": file_path, "response": "File Uploaded Successfully!"}
+
 
 
 

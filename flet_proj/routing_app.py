@@ -25,7 +25,7 @@ def main(page: ft.Page, url: str):
     user_menu = UserMenu(page).user_menu
     sign_up = SignUp(page, url)
     sign_in = SignIn(page, url)
-    file_picker = FilePicker(page).content
+    file_picker = FilePicker(page, url).content
 
 
     def insert_user_information(username: str, email: str, password: str):
@@ -123,7 +123,7 @@ def main(page: ft.Page, url: str):
 
 
 if __name__ == "__main__":
-    IP = "192.168.29.125"
+    IP = "127.0.0.1"
     PORT = 5555
     URL = f"http://{IP}:{PORT}/"
     ft.app(target=lambda page: main(page=page, url=URL))

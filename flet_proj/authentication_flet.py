@@ -215,6 +215,7 @@ class UpdateDetails:
             if response == "Details Updated Successfully!":
                 self.details = {"email": self.email_tb.value, "username": self.username_tb.value,
                                 "password": self.password_tb.value}
+
                 self.alert_message = ft.Text("Your Details Have Been Updated!", color=ft.colors.GREEN_300)
                 self.items.append(self.alert_message)
                 self.column.controls = self.items
@@ -222,6 +223,7 @@ class UpdateDetails:
                 # self.username_tb.value = self.details["username"]
                 # self.email_tb.value = self.details["email"]
                 # self.password_tb.value = self.details["password"]
+                self.details.update()
                 self.page.update()
                 time.sleep(2)
                 self.page.go('/user_home')
