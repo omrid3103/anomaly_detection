@@ -2,6 +2,9 @@ import random
 import numpy as np
 import math
 import statistics
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+from db_and_pdf_demo import kmc_controller
 
 
 def distance_calc(point_coordinates_arr: np.ndarray, center_coordinates_arr: np.ndarray) -> float:
@@ -73,8 +76,60 @@ def kmc(
         # print("\n")
     return centers_array, grouping_list
 
+
+def scatter_graph_3d(
+        points_coordinates: np.ndarray,
+        iterations: int = 10
+) -> plt:
+
+    random_indices = np.random.choice(points_coordinates.shape[0], size=6, replace=False)
+    centers_coordinates = points_coordinates[random_indices]
+
+    grouping_list = []
+    # Generate random initial cluster centers out of the points array
+
+    # plt.scatter(points_coordinates_4d[cluster][:, 0], points_coordinates_4d[cluster][:, 1], points_coordinates_4d[cluster][:, 1], label=str(j))
+    # plt.scatter(center[0], center[1], s=90, c='black', label=f"{j} center")
+
+    COLORS = ['gold', 'teal', 'black', 'red', 'blue', 'green', 'orange', 'pink', 'cyan']
+
+    for _ in range(iterations):
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+        ax.set_xlabel('X Label')
+        ax.set_ylabel('Y Label')
+        ax.set_zlabel('Z Label')
+        ax.set_title('3D Scatter Plot')
+
+        centers_coordinates, grouping_list = kmc(points_coordinates, centers_coordinates, 6)
+
+        print(centers_coordinates)
+        print(grouping_list)
+
+        for j, (center, cluster) in enumerate(zip(centers_coordinates, grouping_list)):
+            # plt.figure(figsize=(6, 6))
+            x_cluster_points = points_coordinates[cluster][:, 0]
+            y_cluster_points = points_coordinates[cluster][:, 1]
+            z_cluster_points = points_coordinates[cluster][:, 2]
+            x_center = center[0]
+            y_center = center[1]
+            z_center = center[2]
+
+            for index, (x, y, z) in enumerate(zip(x_cluster_points, y_cluster_points, z_cluster_points)):
+                if points_coordinates[cluster][index][3] == 1.0:
+                    ax.scatter(x, y, z, c=COLORS[j], marker='*', label=str(j))
+                else:
+                    ax.scatter(x, y, z, c=COLORS[j], label=str(j), marker='s')
+            ax.scatter(x_center, y_center, z_center, s=90, c=COLORS[j], label=f"{j} center")
+
+        # ax.legend()
+        plt.show()
+
+
 def main():
-    pass
+    points_coordinates: np.ndarray = kmc_controller.kmc_controller_main()
+    scatter_graph_3d(points_coordinates)
+
 
 if __name__ == "__main__":
     main()

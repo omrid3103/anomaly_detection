@@ -1,5 +1,5 @@
 import numpy as np
-from kmc_files.kmeans_clustering import *
+from db_and_pdf_demo.kmeans_clustering import *
 from kmc_files.kmeans_proj import kmeans_proj_main
 
 

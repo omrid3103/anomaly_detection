@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-from kmc_files.kmeans_clustering import kmc
+from db_and_pdf_demo.kmeans_clustering import kmc
 from kmc_files.kmeans_proj import kmeans_proj_main
 
 points_coordinates = kmeans_proj_main()

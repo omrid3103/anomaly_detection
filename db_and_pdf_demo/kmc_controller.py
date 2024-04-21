@@ -1,5 +1,4 @@
-from kmc_files import kmeans_proj
-from kmc_files import kmeans_clustering
+# from kmc_files import kmeans_clustering
 from typing import Union
 import pdfplumber
 import csv
@@ -199,25 +198,23 @@ class KMeansTable:
         return rows_array
 
 
-
 # =================================================================================
 # ****************************   mainRunning   ************************************
 # =================================================================================
 
 
-def kmc_controller_main():
+def kmc_controller_main(pdf_file_path: str = r"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\db_and_pdf_demo\client_data_table0.pdf"):
 
-    PDF_FILE_PATH = r"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\db_and_pdf_demo\client_data_table0.pdf"
-
-    controller = KMCController(PDF_FILE_PATH)
+    controller = KMCController(pdf_file_path)
     controller.pdf_to_csv()
     controller.csv_to_dataframe()
     # print(controller.df)
 
     k_table = KMeansTable(controller.df)
     table_arr = k_table.define_features()
-    for i, r in enumerate(table_arr):
-        print(i, r)
+    # for i, r in enumerate(table_arr):
+    #     print(i, r)
+    return table_arr
 
 
 if __name__ == "__main__":
