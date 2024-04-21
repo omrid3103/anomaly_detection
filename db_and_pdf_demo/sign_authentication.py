@@ -145,18 +145,29 @@ async def upload_files(file_bytes: bytes):
     upload_file_object = UploadFile(filename='filename.pdf', file=open(temp_file_path, "rb"))
 
     # os.remove(temp_file_path)
-    print(str(upload_file_object))
     file_extension = upload_file_object.filename.split('.').pop()
-    file_name = 'client_data_table'
+    file_name = f'client_data_table0.{file_extension}'
+    file_name = pdf_file_name_generator(file_name)
     # file_name = token_hex(10)
-    file_path = f"{file_name}.{file_extension}"
+    file_path = f"{file_name}"
     with open(file_path, "wb") as f:
         content = await upload_file_object.read()
         f.write(content)
     return {"success": True, "file_path": file_path, "response": "File Uploaded Successfully!"}
 
 
-
+def pdf_file_name_generator(file_name: str):
+    directory_path = r"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\db_and_pdf_demo"
+    files = os.listdir(directory_path)
+    flag = False
+    while not flag:
+        if file_name in files:
+            file_extension = file_name.split('.')[1]
+            file_index = str(int(file_name.split('.')[0][-1]) + 1)
+            file_name = f"{file_name.split('.')[0][:-1]}{file_index}.{file_extension}"
+        else:
+            flag = True
+    return file_name
 
 
 def main():
