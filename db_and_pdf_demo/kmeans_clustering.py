@@ -7,11 +7,21 @@ from mpl_toolkits.mplot3d import Axes3D
 from db_and_pdf_demo import kmc_controller
 
 
+# ==================================================================
+# ***************** Points' Distance Calculation *******************
+# ==================================================================
+
+
 def distance_calc(point_coordinates_arr: np.ndarray, center_coordinates_arr: np.ndarray) -> float:
     sum_differences: int = 0
     for i in range(len(point_coordinates_arr)):
         sum_differences += math.pow(point_coordinates_arr[i] - center_coordinates_arr[i], 2)
     return math.sqrt(sum_differences)
+
+
+# ==================================================================
+# ************* Point's Cluster Index Indication *******************
+# ==================================================================
 
 
 def cluster_index_of_point(specific_point_arr: np.ndarray, centers_array: np.array):
@@ -35,12 +45,22 @@ def cluster_index_of_point(specific_point_arr: np.ndarray, centers_array: np.arr
     return min_dist_index
 
 
+# ==================================================================
+# ******************** Grouping Extraction *************************
+# ==================================================================
+
+
 def clusters_groups_division(points_array: np.ndarray, centers_array: np.ndarray, n_clusters: int) -> list[list[int]]:
     grouping_list: list[list[int]] = [[] for _ in range(n_clusters)]
     for i, p in enumerate(points_array):
         cluster_i = cluster_index_of_point(p, centers_array)
         grouping_list[cluster_i].append(i)
     return grouping_list
+
+
+# ==================================================================
+# ************* Centers' Coordinates Calibration *******************
+# ==================================================================
 
 
 def new_centers(points_array: np.array, grouping_list: list[list[int]]) -> np.ndarray:
@@ -52,6 +72,11 @@ def new_centers(points_array: np.array, grouping_list: list[list[int]]) -> np.nd
         else:
             continue
     return centers
+
+
+# ==================================================================
+# ****************** Main KM-C Function ****************************
+# ==================================================================
 
 
 def kmc(
@@ -77,12 +102,85 @@ def kmc(
     return centers_array, grouping_list
 
 
+# ==================================================================
+# ********* Silhouette Score Calculating Function ******************
+# ==================================================================
+
+
+def silhouette_score(points_array: np.ndarray, centers_array: np.ndarray, grouping_list: list[list[int]]) -> float:
+    """
+    Calculate silhouette score for the clustering.
+
+    Parameters:
+        points_array (np.ndarray): Input data points.
+        centers_array (np.ndarray): Array of cluster centers.
+        grouping_list (list[list[int]]): List of clusters where each cluster is a list of point indices.
+
+    Returns:
+        float: Silhouette score for the clustering.
+    """
+    num_points = len(points_array)
+    silhouette_values = []
+
+    # Calculate a for each point
+    for i, point in enumerate(points_array):
+        cluster_index = cluster_index_of_point(point, centers_array)
+        cluster_points = points_array[grouping_list[cluster_index]]
+        a = np.mean([distance_calc(point, p) for p in cluster_points if not np.array_equal(point, p)])
+
+        # Calculate b for each point
+        b_values = []
+        for j, cluster in enumerate(grouping_list):
+            if j != cluster_index:
+                other_cluster_points = points_array[cluster]
+                b_values.append(np.mean([distance_calc(point, p) for p in other_cluster_points]))
+
+        b = min(b_values) if b_values else 0
+
+        # Calculate silhouette value for the point
+        silhouette_value = (b - a) / max(a, b)
+        silhouette_values.append(silhouette_value)
+
+    # Calculate overall silhouette score
+    silhouette_i_score = np.mean(silhouette_values)
+    return silhouette_i_score
+
+
+# ==================================================================
+# *** Most Efficient Number Of Clusters Determining Function *******
+# ==================================================================
+
+
+def most_efficient_n_of_clusters(points_coordinates: np.ndarray, min_clusters_to_check: int = 2, max_clusters_to_check: int = 8) -> int:
+    silhouette_scores_list = []
+    random_indices = np.random.choice(points_coordinates.shape[0], size=max_clusters_to_check, replace=False)
+    centers_coordinates = points_coordinates[random_indices]
+    for i in range(min_clusters_to_check, max_clusters_to_check + 1):
+        updated_centers, grouping_list = kmc(points_coordinates, centers_coordinates[:i, :], i, 30)
+        silhouette_score_of_i: float = silhouette_score(points_coordinates, updated_centers, grouping_list)
+        if math.isnan(silhouette_score_of_i):
+            silhouette_scores_list.append(-1.0)
+        else:
+            silhouette_scores_list.append(silhouette_score_of_i)
+        print(i, silhouette_score(points_coordinates, updated_centers, grouping_list))
+
+    silhouette_scores_array = np.array(silhouette_scores_list)
+    print(silhouette_scores_array)
+    return silhouette_scores_array.argmax() + min_clusters_to_check
+
+
+# ==================================================================
+# *************** 3D Points Groups Scattering **********************
+# ==================================================================
+
+
 def scatter_graph_3d(
         points_coordinates: np.ndarray,
-        iterations: int = 10
+        iterations: int = 10,
+        n_clusters: int = 5
 ) -> plt:
 
-    random_indices = np.random.choice(points_coordinates.shape[0], size=6, replace=False)
+    random_indices = np.random.choice(points_coordinates.shape[0], size=n_clusters, replace=False)
     centers_coordinates = points_coordinates[random_indices]
 
     grouping_list = []
@@ -101,7 +199,7 @@ def scatter_graph_3d(
         ax.set_zlabel('Z Label')
         ax.set_title('3D Scatter Plot')
 
-        centers_coordinates, grouping_list = kmc(points_coordinates, centers_coordinates, 6)
+        centers_coordinates, grouping_list = kmc(points_coordinates, centers_coordinates, n_clusters)
 
         print(centers_coordinates)
         print(grouping_list)
@@ -128,7 +226,10 @@ def scatter_graph_3d(
 
 def main():
     points_coordinates: np.ndarray = kmc_controller.kmc_controller_main()
-    scatter_graph_3d(points_coordinates)
+    # m_e_n_o_c = most_efficient_n_of_clusters(points_coordinates, min_clusters_to_check=5)
+    # print(m_e_n_o_c)
+    # scatter_graph_3d(points_coordinates, n_clusters=m_e_n_o_c)
+
 
 
 if __name__ == "__main__":

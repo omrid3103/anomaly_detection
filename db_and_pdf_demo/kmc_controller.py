@@ -19,9 +19,9 @@ import random
 
 class KMCController:
 
-    def __init__(self, pdf_path: Union[None, str] = None):
+    def __init__(self, pdf_path: str = r"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\db_and_pdf_demo\client_data_table0.pdf"):
         self.pdf_path = pdf_path
-        self.csv_path: Union[None, str] = None
+        self.csv_path: Union[None, str] = r"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\db_and_pdf_demo\output0.csv"
         self.df: Union[None, pd.DataFrame] = None
 
 
@@ -206,10 +206,9 @@ class KMeansTable:
 def kmc_controller_main(pdf_file_path: str = r"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\db_and_pdf_demo\client_data_table0.pdf"):
 
     controller = KMCController(pdf_file_path)
-    controller.pdf_to_csv()
-    controller.csv_to_dataframe()
+    # controller.pdf_to_csv()
     # print(controller.df)
-
+    print(controller.csv_path)
     k_table = KMeansTable(controller.df)
     table_arr = k_table.define_features()
     # for i, r in enumerate(table_arr):
