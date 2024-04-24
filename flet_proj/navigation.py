@@ -156,3 +156,37 @@ class UserAppBar:
         self.page.update()
 
 
+class TableAppBar:
+    def __init__(self, page: ft.Page):
+        self.page = page
+        # self.menu = UserMenu(page)
+        self.theme_icon = ft.IconButton(icon=ft.icons.WB_SUNNY_OUTLINED, on_click=self.switch_theme)
+        self.title_text = ft.Text("2-G2OD")
+        self.my_appbar = ft.AppBar(
+            leading=ft.IconButton(icon=ft.icons.ARROW_BACK, on_click=lambda _: self.page.go("/client_kmc")),
+            leading_width=40,
+            title=self.title_text,
+            color=ft.colors.BLACK,
+            center_title=True,
+            bgcolor=ft.colors.SURFACE_VARIANT,
+            actions=[
+                self.theme_icon,
+            ],
+        )
+
+    def switch_theme(self, e):
+        if self.page.theme_mode == "dark":
+            self.page.theme_mode = "light"
+            self.theme_icon.icon = ft.icons.WB_SUNNY_OUTLINED
+            self.theme_icon.icon_color = ft.colors.BLACK
+            self.title_text.color = ft.colors.BLACK
+            # self.menu.menu_text.icon_color = ft.colors.BLACK
+        else:
+            self.page.theme_mode = "dark"
+            self.theme_icon.icon = ft.icons.MODE_NIGHT_OUTLINED
+            self.theme_icon.icon_color = ft.colors.WHITE
+            self.title_text.color = ft.colors.WHITE
+            # self.menu.menu_text.icon_color = ft.colors.WHITE
+        self.page.update()
+
+

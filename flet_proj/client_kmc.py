@@ -1,6 +1,7 @@
 import flet as ft
 import requests
 from typing import Union
+import time
 
 
 class FilePicker:
@@ -10,6 +11,7 @@ class FilePicker:
         self.request_url = url
         self.confirmation = ft.Text("Your file has been uploaded", color=ft.colors.GREEN_200)
         self.saved_file: Union[None, bytes] = None
+        self.file_name: str = ""
         self.pick_files_dialog = ft.FilePicker(on_result=self.pick_files_result)
 
         self.page.overlay.append(self.pick_files_dialog)
@@ -55,28 +57,19 @@ class FilePicker:
     def upload_file(self, e):
         result = requests.post(f"{self.request_url}upload_files", params={"file_bytes": self.saved_file}).json()
         response = result["success"]
+        print(result["file_path"])
         if response:
+            self.file_name = result["file_path"]
             self.row.controls.append(self.confirmation)
             self.row.update()
             self.content.update()
             self.page.update()
+            time.sleep(2)
+            self.page.go('/data_table')
 
 
-class List:
 
-    def __init__(self, page: ft.Page):
-        self.page = page
-        self.page.fonts = {
-            "RobotoSlab": "https://github.com/google/fonts/raw/main/apache/robotoslab/RobotoSlab%5Bwght%5D.ttf"
-        }
-        self.head_title = ft.Text(
-            "Data List",
-            text_align=ft.TextAlign.CENTER,
-            color=ft.colors.BLACK26,
-            font_family="RobotoSlab",
-            style=ft.TextStyle(weight=ft.FontWeight.BOLD)
-        )
-        
+
 
 
 

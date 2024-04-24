@@ -2,6 +2,7 @@ import random
 import numpy as np
 import math
 import statistics
+from typing import Union
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 from db_and_pdf_demo import kmc_controller
@@ -81,10 +82,13 @@ def new_centers(points_array: np.array, grouping_list: list[list[int]]) -> np.nd
 
 def kmc(
         points_array: np.ndarray,
-        centers_array: np.ndarray,
         n_clusters: int,
-        iterations: int = 1
+        centers_array: Union[np.ndarray, None] = None,
+        iterations: int = 10
 ) -> tuple[np.ndarray, list[list[int]]]:
+    if centers_array is None:
+        random_indices = np.random.choice(points_array.shape[0], size=n_clusters, replace=False)
+        centers_array = points_array[random_indices]
     grouping_list = clusters_groups_division(points_array, centers_array, n_clusters)
     # for i, p in enumerate(points_array):
     #     print(i, p)
@@ -156,7 +160,7 @@ def most_efficient_n_of_clusters(points_coordinates: np.ndarray, min_clusters_to
     random_indices = np.random.choice(points_coordinates.shape[0], size=max_clusters_to_check, replace=False)
     centers_coordinates = points_coordinates[random_indices]
     for i in range(min_clusters_to_check, max_clusters_to_check + 1):
-        updated_centers, grouping_list = kmc(points_coordinates, centers_coordinates[:i, :], i, 30)
+        updated_centers, grouping_list = kmc(points_coordinates, i, centers_coordinates[:i, :], 10)
         silhouette_score_of_i: float = silhouette_score(points_coordinates, updated_centers, grouping_list)
         if math.isnan(silhouette_score_of_i):
             silhouette_scores_list.append(-1.0)
@@ -165,7 +169,6 @@ def most_efficient_n_of_clusters(points_coordinates: np.ndarray, min_clusters_to
         print(i, silhouette_score(points_coordinates, updated_centers, grouping_list))
 
     silhouette_scores_array = np.array(silhouette_scores_list)
-    print(silhouette_scores_array)
     return silhouette_scores_array.argmax() + min_clusters_to_check
 
 
@@ -199,7 +202,7 @@ def scatter_graph_3d(
         ax.set_zlabel('Z Label')
         ax.set_title('3D Scatter Plot')
 
-        centers_coordinates, grouping_list = kmc(points_coordinates, centers_coordinates, n_clusters)
+        centers_coordinates, grouping_list = kmc(points_coordinates, n_clusters, centers_coordinates)
 
         print(centers_coordinates)
         print(grouping_list)
@@ -226,9 +229,9 @@ def scatter_graph_3d(
 
 def main():
     points_coordinates: np.ndarray = kmc_controller.kmc_controller_main()
-    # m_e_n_o_c = most_efficient_n_of_clusters(points_coordinates, min_clusters_to_check=5)
-    # print(m_e_n_o_c)
-    # scatter_graph_3d(points_coordinates, n_clusters=m_e_n_o_c)
+    m_e_n_o_c = most_efficient_n_of_clusters(points_coordinates, min_clusters_to_check=4, max_clusters_to_check=6)
+    print(m_e_n_o_c)
+    scatter_graph_3d(points_coordinates, n_clusters=m_e_n_o_c)
 
 
 

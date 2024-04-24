@@ -40,6 +40,7 @@ class KMCController:
 
 
     def pdf_to_csv(self) -> None:
+        print(self.pdf_path)
         # Open the PDF file
         with pdfplumber.open(self.pdf_path) as pdf:
             # Initialize an empty list to store table data
@@ -77,6 +78,7 @@ class KMCController:
 
         csv_new_name = 'output0.csv'
         csv_new_name = self.csv_file_name_generator(csv_new_name)
+        csv_new_name = rf"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\db_and_pdf_demo\{csv_new_name}"
 
         with open(csv_new_name, 'w', newline='', encoding='utf-8') as csvfile:
             csv_writer = csv.writer(csvfile)
@@ -92,7 +94,7 @@ class KMCController:
             csv_writer = csv.writer(csvfile)
             csv_writer.writerows(all_table_data)
 
-        self.csv_path = rf"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\db_and_pdf_demo\{csv_new_name}"
+        self.csv_path = csv_new_name
 
 
     def csv_to_dataframe(self) -> None:
@@ -206,8 +208,9 @@ class KMeansTable:
 def kmc_controller_main(pdf_file_path: str = r"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\db_and_pdf_demo\client_data_table0.pdf"):
 
     controller = KMCController(pdf_file_path)
-    # controller.pdf_to_csv()
-    # print(controller.df)
+    controller.pdf_to_csv()
+    controller.csv_to_dataframe()
+    print(controller.df)
     print(controller.csv_path)
     k_table = KMeansTable(controller.df)
     table_arr = k_table.define_features()

@@ -1,15 +1,23 @@
 import flet as ft
-from db_and_pdf_demo import kmc_controller as kmc_cntrl
+import numpy as np
+
+from db_and_pdf_demo import kmc_controller
+from db_and_pdf_demo import kmeans_clustering
 import pandas as pd
 from typing import Union
 
 
 class DataTable:
 
-    def __init__(self, page: ft.Page, pdf_path: str = r"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\db_and_pdf_demo\client_data_table0.pdf"):
+    def __init__(self, page: ft.Page, url: str, pdf_path: str = r"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\db_and_pdf_demo\client_data_table0.pdf"):
         self.page = page
+        self.request_url = url
         self.page.scroll = True
-        self.controller = kmc_cntrl.KMCController(pdf_path)
+        if pdf_path != "":
+            self.controller = kmc_controller.KMCController(pdf_path)
+        else:
+            self.controller = kmc_controller.KMCController(r"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\db_and_pdf_demo\client_data_table0.pdf")
+        self.controller.pdf_to_csv()
         self.controller.csv_to_dataframe()
         self.df: pd.DataFrame = self.controller.df
 
@@ -42,7 +50,7 @@ class DataTable:
 
         self.data_table = ft.DataTable(
             width=1000,
-            bgcolor="yellow",
+            bgcolor="grey",
             border=ft.border.all(2, "red"),
             border_radius=10,
             vertical_lines=ft.border.BorderSide(3, "brown"),
@@ -58,15 +66,17 @@ class DataTable:
             columns=self.table_columns_generation(),
             rows=self.table_rows_generation()
         )
-        self.table_container = ft.Container
+        self.kmc_button = ft.ElevatedButton("kmc the table", on_click=self.kmc_table_definition)
+        self.row_colors: list[ft.colors] = []
 
 
         self.search_row = ft.Row([self.dropdown_obj, self.search_field], spacing=80)
         self.message_row = ft.Row([self.data_not_found])
-        self.table_row = ft.Row([self.data_table])
+        self.table_row = ft.Row([self.data_table, self.kmc_button])
 
         self.items = [self.search_row, self.table_row]
         self.column = ft.Column(spacing=20, controls=self.items)
+        self.column.scroll = ft.ScrollMode.ALWAYS
 
 
     # =================================================================================
@@ -142,6 +152,8 @@ class DataTable:
         self.data_table.rows = []
 
         if not self.search_field.value == "":
+            if self.message_row in self.items:
+                self.items.remove(self.message_row)
             if len(my_filter) > 0:
                 for x in my_filter:
                     self.data_table.rows.append(
@@ -162,10 +174,55 @@ class DataTable:
         self.page.update()
 
 
+    def kmc_table_definition(self, e) -> None:
+        points_coordinates_array: np.ndarray = kmc_controller.KMeansTable(self.df).define_features()
+        most_efficient_number_of_clusters = kmeans_clustering.most_efficient_n_of_clusters(points_coordinates_array, 3, 9)
+        grouping_list: list[list[int]] = kmeans_clustering.kmc(points_coordinates_array, most_efficient_number_of_clusters, iterations=35)[1]
+        grouping_list_length = sum(len(sublist) for sublist in grouping_list)
+
+        COLORS: list[ft.colors] = [ft.colors.YELLOW_200, ft.colors.TEAL_50, ft.colors.BLUE_100, ft.colors.RED_200, ft.colors.BLUE_200,
+                  ft.colors.GREEN_200, ft.colors.ORANGE_200, ft.colors.PINK_200, ft.colors.CYAN_50]
+
+        def group_index(g_list: list[list[int]], index_to_check: int) -> int:
+            for g_index, g in enumerate(g_list):
+                if index_to_check in g:
+                    return g_index
+
+
+        if grouping_list_length == len(self.data_table.rows):
+            for i, r in enumerate(self.data_table.rows):
+                r.color = COLORS[group_index(grouping_list, i)]
+            self.table_row.controls.remove(self.kmc_button)
+            self.data_table.update()
+            self.column.update()
+            self.page.update()
+
+
+
+
     def main(self) -> None:
         # page.scroll = ft.ScrollMode.HIDDEN
         # page.auto_scroll = True
         self.page.theme_mode = ft.ThemeMode.LIGHT
+        # self.page.theme = ft.Theme(
+        #     scrollbar_theme=ft.ScrollbarTheme(
+        #         track_color={
+        #             ft.MaterialState.HOVERED: ft.colors.AMBER,
+        #             ft.MaterialState.DEFAULT: ft.colors.TRANSPARENT,
+        #         },
+        #         track_visibility=True,
+        #         track_border_color=ft.colors.BLUE,
+        #         thumb_visibility=True,
+        #         thumb_color={
+        #             ft.MaterialState.HOVERED: ft.colors.RED,
+        #             ft.MaterialState.DEFAULT: ft.colors.GREY_300,
+        #         },
+        #         thickness=30,
+        #         radius=15,
+        #         main_axis_margin=5,
+        #         cross_axis_margin=10,
+        #     )
+        # )
         self.page.add(self.column)
         # self.page.floating_action_button = ft.FloatingActionButton(
         #     icon=ft.icons.ADD, on_click=self.fab_pressed, bgcolor=ft.colors.BLUE_200)

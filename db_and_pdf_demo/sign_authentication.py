@@ -149,7 +149,7 @@ async def upload_files(file_bytes: bytes):
     file_name = f'client_data_table0.{file_extension}'
     file_name = pdf_file_name_generator(file_name)
     # file_name = token_hex(10)
-    file_path = f"{file_name}"
+    file_path = rf"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\db_and_pdf_demo\{file_name}"
     with open(file_path, "wb") as f:
         content = await upload_file_object.read()
         f.write(content)
