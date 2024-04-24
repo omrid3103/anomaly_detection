@@ -24,6 +24,7 @@ class DataTable:
         self.columns_names_list = self.df.columns.tolist()
         self.num_rows: int = self.df.shape[0]
         self.num_cells_in_each_row: int = len(self.df.iloc[0].tolist())
+        self.row_colors: list[ft.colors] = []
 
 
         # =================================================================================
@@ -67,7 +68,6 @@ class DataTable:
             rows=self.table_rows_generation()
         )
         self.kmc_button = ft.ElevatedButton("kmc the table", on_click=self.kmc_table_definition)
-        self.row_colors: list[ft.colors] = []
 
 
         self.search_row = ft.Row([self.dropdown_obj, self.search_field], spacing=80)
@@ -103,14 +103,24 @@ class DataTable:
                 cells_list.append(
                     ft.DataCell(ft.Text(f"{str(row_i_information[j])}", text_align=ft.TextAlign.CENTER))
                 )
-            rows_list.append(
-                ft.DataRow(
-                    cells=cells_list,
-                    # color=ft.colors.BLUE_300,
-                    selected=True,
-                    on_select_changed=lambda e: print(f"row select changed: {e.data}"),
+            if len(self.row_colors) == 0:
+                rows_list.append(
+                    ft.DataRow(
+                        cells=cells_list,
+                        # color=ft.colors.BLUE_300,
+                        selected=True,
+                        on_select_changed=lambda e: print(f"row select changed: {e.data}"),
+                    )
                 )
-            )
+            else:
+                rows_list.append(
+                    ft.DataRow(
+                        cells=cells_list,
+                        color=self.row_colors[i],
+                        selected=True,
+                        on_select_changed=lambda e: print(f"row select changed: {e.data}"),
+                    )
+                )
             cells_list = []
         return rows_list
 
@@ -137,6 +147,7 @@ class DataTable:
         self.page.update()
 
     def input_changed(self, e):
+
         def cells_generation(x_c: dict[str, str]) -> list[ft.DataCell]:
             cells_g = []
             for n in range(self.num_cells_in_each_row):
@@ -144,6 +155,14 @@ class DataTable:
                     ft.DataCell(ft.Text(f"{str(x_c[self.columns_names_list[n]])}"))
                 )
             return cells_g
+
+        def get_filtered_row_index(x_c: dict[str, str]) -> int:
+            table_rows_full_data = self.table_rows_generation()
+            row_color: Union[None, ft.colors] = None
+            for i, r in enumerate(table_rows_full_data):
+                if r.cells[0].content.value == x_c[self.columns_names_list[0]] and r.cells[1].content.value == x_c[self.columns_names_list[1]] \
+                        and r.cells[2].content.value == x_c[self.columns_names_list[2]]:
+                    return i
 
         search_name = self.search_field.value
 
@@ -156,11 +175,19 @@ class DataTable:
                 self.items.remove(self.message_row)
             if len(my_filter) > 0:
                 for x in my_filter:
-                    self.data_table.rows.append(
-                        ft.DataRow(
-                            cells=cells_generation(x)
+                    if len(self.row_colors) == 0:
+                        self.data_table.rows.append(
+                            ft.DataRow(
+                                cells=cells_generation(x)
+                            )
                         )
-                    )
+                    else:
+                        self.data_table.rows.append(
+                            ft.DataRow(
+                                cells=cells_generation(x),
+                                color=self.row_colors[get_filtered_row_index(x)]
+                            )
+                        )
             else:
                 self.items.remove(self.table_row)
                 self.items.append(self.message_row)
@@ -192,6 +219,7 @@ class DataTable:
         if grouping_list_length == len(self.data_table.rows):
             for i, r in enumerate(self.data_table.rows):
                 r.color = COLORS[group_index(grouping_list, i)]
+                self.row_colors.append(r.color)
             self.table_row.controls.remove(self.kmc_button)
             self.data_table.update()
             self.column.update()
