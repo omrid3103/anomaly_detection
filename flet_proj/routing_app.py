@@ -110,6 +110,18 @@ def main(page: ft.Page, url: str):
                     ]
                 )
             )
+
+        if page.route == "/client_kmc":
+            page.views.append(
+                ft.View(
+                    "client_kmc",
+                    [
+                        user_appbar,
+                        user_menu,
+                        file_picker,
+                    ]
+                )
+            )
         page.update()
 
     # def view_pop(view):

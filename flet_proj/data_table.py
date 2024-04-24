@@ -171,10 +171,3 @@ class DataTable:
         #     icon=ft.icons.ADD, on_click=self.fab_pressed, bgcolor=ft.colors.BLUE_200)
 
 
-
-def dt_main():
-    ft.app(target=lambda page: DataTable(page=page).main())
-
-
-if __name__ == "__main__":
-    dt_main()
