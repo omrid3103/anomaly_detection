@@ -165,7 +165,7 @@ class UpdateDetails:
         self.request_url = url
         self.title_text = ft.Text("Update Your Information, " + self.details["username"] + "")
         self.alert_message = ft.Text("No Detail Has Been Changed", color=ft.colors.RED_400)
-        self.username_tb = ft.TextField(label="Username", max_lines=1, width=280, hint_text="Enter username here", value=self.details["username"])
+        self.username_tb = ft.TextField(label="Username", max_lines=1, width=280, hint_text="Enter username here", value=self.details["username"], disabled=True)
         self.email_tb = ft.TextField(label="Email", max_lines=1, width=280, hint_text="Enter email here", keyboard_type=ft.KeyboardType.EMAIL, value=self.details["email"])
         self.password_tb = ft.TextField(label="Password", password=True, can_reveal_password=True, max_lines=1, width=280, value=self.details["password"])
         self.submit_button = ft.ElevatedButton(text="Update Details!", color=ft.colors.BLUE_300, on_click=self.update_details)

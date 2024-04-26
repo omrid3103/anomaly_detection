@@ -1,71 +1,71 @@
-from typing import Dict
 import flet as ft
+import requests
+from typing import Union
+import pandas as pd
+import json
+from io import StringIO
 
 
-class UploadFile:
-    def __init__(self, page: ft.Page):
-        self.page = page
-        self.prog_bars: Dict[str, ft.ProgressRing] = {}
-        self.files = ft.Ref[ft.Column]()
-        self.upload_button = ft.Ref[ft.ElevatedButton]()
-        self.file_picker = ft.FilePicker(on_result=self.file_picker_result, on_upload=self.on_upload_progress)
-        self.page.overlay.append(self.file_picker)
-        self.row = ft.Row([
-            ft.ElevatedButton(
-                text="Select files...",
-                icon=ft.icons.FOLDER_OPEN,
-                on_click=lambda _: self.file_picker.pick_files(allow_multiple=True)
-                ),
-            ft.Column(ref=self.files),
-            ft.ElevatedButton(
-                "Upload",
-                ref=self.upload_button,
-                icon=ft.icons.UPLOAD,
-                on_click=self.upload_files,
-                disabled=True
-                )
-            ]
-        )
-        self.column = ft.Column(controls=[self.row])
+class FormerData:
+    def __init__(self, page: ft.Page, url: str, info: dict):
+        self.page: ft.Page = page
+        self.request_url: str = url
+        self.username: str = info["username"]
+        self.password: str = info["password"]
 
-    def file_picker_result(self, e: ft.FilePickerResultEvent):
-        self.upload_button.current.disabled = True if e.files is None else False
-        self.prog_bars.clear()
-        self.files.current.controls.clear()
-        if e.files is not None:
-            for f in e.files:
-                prog = ft.ProgressRing(value=0, bgcolor=ft.colors.BLUE_400, width=20, height=20)
-                self.prog_bars[f.name] = prog
-                self.files.current.controls.append(ft.Row([prog, ft.Text(f.name)]))
-        self.page.update()
+        self.no_data_mag = ft.Text("You don't have any data saved...", visible=True,
+                                   weight=ft.FontWeight("bold"), color=ft.colors.RED_400, size=30)
 
-    def on_upload_progress(self, e: ft.FilePickerUploadEvent):
-        self.prog_bars[e.file_name].value = e.progress
-        self.prog_bars[e.file_name].update()
+        self.data: Union[list[dict], None] = self.get_user_data()
+        self.num_of_tables: Union[int, None] = None
+        self.items: list = [self.no_data_mag]
+        if self.data is not None:
+            self.num_of_tables = len(self.data)
+            self.items = self.generate_buttons()
 
-    def upload_files(self, e):
-        uf = []
-        if self.file_picker.result is not None and self.file_picker.result.files is not None:
-            for f in self.file_picker.result.files:
-                print(f.name)
-                print(type(f))
-                uf.append(
-                    ft.FilePickerUploadFile(
-                        f.name,
-                        upload_url=self.page.get_upload_url(f.name, 600),
+        self.selected_table_df: Union[dict, None] = None
+
+        self.column = ft.Column(controls=self.items)
+
+
+    def get_user_data(self) -> Union[list[dict], None]:
+        result = requests.get(f"{self.request_url}extract_user_data", params={"username": self.username, "password": self.password}).json()
+        if result["success"]:
+            if result["response"] == "Sending data":
+                return result["data"]
+        return None
+
+    def generate_buttons(self) -> list[ft.Row]:
+        buttons_list: list = [ft.Row([ft.Text("Click To See Your Tables:", color=ft.colors.BLACK, size=60)])]
+
+        for i, t in enumerate(self.data):
+            json_buffer = StringIO(t["json_df"])
+            table_df = pd.read_json(json_buffer)
+            buttons_list.append(ft.Row(
+                [
+                    ft.Text(f"Table #{i + 1}: {t['table_time_stamp']}", weight=ft.FontWeight("bold"), color=ft.colors.BLACK, size=30),
+                    ft.ElevatedButton(
+                        f"Table #{i + 1}",
+                        style=ft.ButtonStyle(
+                            shape=ft.RoundedRectangleBorder(radius=2)
+                        ),
+                        color=ft.colors.BLUE_400,
+                        on_click=lambda event: self.button_clicked(event, table_df)
                     )
-                )
-            self.file_picker.upload(uf)
-
-    # hide dialog in a overlay
-
-
-def main(page: ft.Page):
-    upload = UploadFile(page).column
-    page.add(upload)
+                ]
+            )
+            )
+        return buttons_list
 
 
+    def button_clicked(self, e, table_df: pd.DataFrame):
+        def move_to_table_page():
+            self.page.go('/former_table')
 
-ft.app(target=main, upload_dir="my_uploads")
+        self.selected_table_df = table_df
+        self.page.update()
+        move_to_table_page()
 
-
+    def main(self) -> None:
+        self.page.theme_mode = ft.ThemeMode.LIGHT
+        self.page.add(self.column)

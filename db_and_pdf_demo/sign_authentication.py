@@ -216,6 +216,35 @@ async def save_table(username: str, password: str, time_stamp: str, json_df: str
     else:
         return {"success": False, "response": "Username Does Not Exist"}
 
+
+@app.get("/extract_user_data")
+async def extract_user_data(username: str, password: str):
+    username_auth = Authentication.select().where(Authentication.columns.Username == username)
+    username_auth = auth_session.execute(username_auth).fetchall()
+    pass_hash = hashlib.sha256(password.encode()).hexdigest()
+
+    if len(username_auth) != 0:
+        if not any(data[-1] == pass_hash for data in username_auth):
+            return {"success": False, "response": "Not Matching Password"}
+
+        data_query = Tables.select().where(Tables.columns.Username == username)
+        data = tables_db_session.execute(data_query).fetchall()
+        if len(data) == 0:
+            return {"success": True, "response": "You don't have any data saved..."}
+
+        list_of_dicts: list[dict] = []
+        temp_table_dict = {"table_time_stamp": "", "json_df": ""}
+
+        for d in data:
+            temp_table_dict["table_time_stamp"] = d[2]
+            temp_table_dict["json_df"] = d[3]
+            list_of_dicts.append(temp_table_dict)
+            temp_table_dict = {"table_time_stamp": "", "json_df": ""}
+
+        return {"success": True, "response": "Sending data", "data": list_of_dicts}
+    else:
+        return {"success": False, "response": "Username Does Not Exist"}
+
 def main():
     # query0 = sqlalchemy.insert(Authentication).values(Email='omrid3103@gmail.com', Username='Omri', Password='oiedvdi')
     # session.execute(query0)
@@ -228,5 +257,5 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
-    # uvicorn.run(app, host=IP, port=PORT)
+    # main()
+    uvicorn.run(app, host=IP, port=PORT)

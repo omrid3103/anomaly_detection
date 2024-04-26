@@ -54,12 +54,18 @@ class UserMenu:
                                                on_click=lambda _: page.go("/user_home"))
                 ),
                 ft.NavigationDestination(
-                    icon_content=ft.TextButton("Personal Info", icon=ft.icons.SUPERVISED_USER_CIRCLE_ROUNDED, icon_color=ft.colors.BLUE_400,
-                                               on_click=lambda _: page.go("/update_details"))
-                ),
-                ft.NavigationDestination(
                     icon_content=ft.TextButton("Insert File", icon=ft.icons.ATTACH_FILE, icon_color=ft.colors.BLUE_400,
                                                on_click=lambda _: page.go("/client_kmc"))
+                ),
+                ft.NavigationDestination(
+                    icon_content=ft.TextButton("Former Data", icon=ft.icons.TABLE_CHART_ROUNDED,
+                                               icon_color=ft.colors.BLUE_400,
+                                               on_click=lambda _: page.go("/former_data"))
+                ),
+                ft.NavigationDestination(
+                    icon_content=ft.TextButton("Personal Info", icon=ft.icons.SUPERVISED_USER_CIRCLE_ROUNDED,
+                                               icon_color=ft.colors.BLUE_400,
+                                               on_click=lambda _: page.go("/update_details"))
                 ),
             ]
         )

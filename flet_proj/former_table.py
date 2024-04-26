@@ -8,21 +8,11 @@ from typing import Union
 import requests
 import time
 
-class DataTable:
 
-    def __init__(self, page: ft.Page, url: str, info: dict, pdf_path: str = r"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\db_and_pdf_demo\client_data_table0.pdf", time_stamp: str = ""):
+class FormerTable:
+
+    def __init__(self, page: ft.Page, table_df: pd.DataFrame):
         self.page = page
-        self.request_url = url
-        self.username = info["username"]
-        self.password = info["password"]
-        self.table_time_stamp = time_stamp
-        print(self.table_time_stamp)
-        self.page.scroll = True
-        if pdf_path != "":
-            self.controller = kmc_controller.KMCController(pdf_path)
-        else:
-            self.controller = kmc_controller.KMCController(r"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\db_and_pdf_demo\client_data_table0.pdf")
-
         self.COLORS: dict[ft.colors, str] = {
                 "Yellow": ft.colors.YELLOW_200,
                 "Teal": ft.colors.TEAL_50,
@@ -35,9 +25,8 @@ class DataTable:
                 "Cyan": ft.colors.CYAN_50
         }
 
-        self.controller.pdf_to_csv()
-        self.controller.csv_to_dataframe()
-        self.df: pd.DataFrame = self.controller.df
+
+        self.df: pd.DataFrame = table_df
 
         self.columns_names_list = self.df.columns.tolist()
         self.num_rows: int = self.df.shape[0]
@@ -96,15 +85,12 @@ class DataTable:
         )
         self.kmc_button = ft.ElevatedButton("kmc the table", on_click=self.kmc_table_definition)
 
-        self.save_table = ft.ElevatedButton("Save table", on_click=self.save_table_in_db)
-
 
         self.search_row = ft.Row([self.kmc_button, self.dropdown_obj, self.search_field, self.color_dropdown], spacing=80)
-        self.save_row = ft.Row([self.save_table])
         self.message_row = ft.Row([self.data_not_found])
         self.table_row = ft.Row([self.data_table])
 
-        self.items = [self.search_row, self.save_row, self.table_row]
+        self.items = [self.search_row, self.table_row]
         self.column = ft.Column(spacing=20, controls=self.items)
         self.column.scroll = ft.ScrollMode.ALWAYS
 
@@ -273,7 +259,7 @@ class DataTable:
         self.page.update()
 
 
-    def kmc_table_definition(self, e) -> None:
+    def kmc_table_definition(self) -> None:
         points_coordinates_array: np.ndarray = kmc_controller.KMeansTable(self.df).define_features()
         most_efficient_number_of_clusters = kmeans_clustering.most_efficient_n_of_clusters(points_coordinates_array, 5, 9)
         grouping_list: list[list[int]] = kmeans_clustering.kmc(points_coordinates_array, most_efficient_number_of_clusters, iterations=35)[1]
@@ -294,35 +280,6 @@ class DataTable:
             self.data_table.update()
             self.column.update()
             self.page.update()
-
-    def save_table_in_db(self, e):
-        payload = {
-            "username": self.username,
-            "password": self.password,
-            "time_stamp": self.table_time_stamp,
-            "json_df": self.df.to_json(orient='records')
-        }
-        result = requests.post(f"{self.request_url}save_table", params=payload).json()
-        print(result)
-        if result["success"]:
-            successful_save_msg = ft.Text("Table has been saved!", visible=True,
-                                   weight=ft.FontWeight("bold"), color=ft.colors.GREEN_400, size=15)
-            self.save_row.controls.append(successful_save_msg)
-            self.save_row.update()
-            self.column.update()
-            self.page.update()
-            time.sleep(1)
-            self.items.remove(self.save_row)
-        else:
-            failed_save_msg = ft.Text("Something went wrong. Try again", visible=True,
-                                   weight=ft.FontWeight("bold"), color=ft.colors.RED_400, size=15)
-            self.save_row.controls.append(failed_save_msg)
-        self.save_row.update()
-        self.column.update()
-        self.page.update()
-        # def save_table(username: str, password: str, json_df: dict, time_stamp: str):
-        # return {"success": False, "response": "Not Matching Password"}
-
 
 
     #🦾🫡🪖

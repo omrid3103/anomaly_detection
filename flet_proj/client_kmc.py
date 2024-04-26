@@ -36,8 +36,8 @@ class FilePicker:
 
         self.start_date_picker = ft.DatePicker(
             on_change=self.start_change_date,
-            first_date=datetime.datetime(2023, 10, 1),
-            last_date=datetime.datetime(2024, 10, 1),
+            first_date=datetime.datetime(2006, 1, 1),
+            last_date=datetime.datetime(2026, 1, 1),
         )
         page.overlay.append(self.start_date_picker)
 
@@ -112,11 +112,17 @@ class FilePicker:
         self.items.remove(self.table_redirection_row)
         self.items.remove(self.confirmation_row)
         self.items.remove(self.upload_row)
+        self.start_date_row.controls.remove(self.start_date_row.controls[1])
+        self.end_date_row.controls.remove(self.end_date_row.controls[1])
         self.content.update()
         self.page.update()
         self.page.go("/data_table")
 
     def start_change_date(self, e):
+        if self.start_date_value != "":
+            self.start_date_row.controls.remove(self.start_date_row.controls[1])
+            self.content.update()
+            self.page.update()
         self.start_date_value = self.start_date_picker.value.strftime("%d/%m/%y")
         start_date_msg = ft.Text(f"Start Date for your table is: {self.start_date_value}", visible=True,
                                weight=ft.FontWeight("bold"), color=ft.colors.BLUE_400, size=20)
@@ -126,6 +132,10 @@ class FilePicker:
         self.page.update()
 
     def end_change_date(self, e):
+        if self.end_date_value != "":
+            self.end_date_row.controls.remove(self.end_date_row.controls[1])
+            self.content.update()
+            self.page.update()
         self.end_date_value = self.end_date_picker.value.strftime("%d/%m/%y")
         self.table_time_stamp = f"{self.start_date_value} - {self.end_date_value}"
         end_date_msg = ft.Text(f"End Date for your table is: {self.end_date_value}", visible=True,

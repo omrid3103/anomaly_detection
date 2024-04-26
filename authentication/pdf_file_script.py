@@ -60,7 +60,7 @@ data.insert(0, ["Date", "Location", "Transaction", "Was-Card-Shown"])
 df = pd.DataFrame(data)
 
 # Create PDF
-pdf_filename = "data_table2.pdf"
+pdf_filename = "data_table3.pdf"
 doc = SimpleDocTemplate(pdf_filename, pagesize=letter)
 
 # Convert DataFrame to list of lists

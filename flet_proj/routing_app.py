@@ -2,6 +2,11 @@ from flet_proj.authentication_flet import SignUp, SignIn, UpdateDetails
 from flet_proj.navigation import *
 from flet_proj.client_kmc import FilePicker
 from flet_proj.data_table import DataTable
+from flet_proj.client_former_data import FormerData
+from flet_proj.former_table import FormerTable
+from typing import Union
+import pandas as pd
+
 
 
 
@@ -16,11 +21,20 @@ class UserDetails:
         self.info["password"] = password
 
 
+class DataKeeper:
+    def __init__(self, df: Union[pd.DataFrame, None] = None):
+        self.df = df
+
+    def update_df_content(self, updated_df):
+        self.df = updated_df
+
+
 def main(page: ft.Page, url: str):
     page.title = "Routes Example"
     page.scroll = ft.ScrollMode.ALWAYS
 
     user_information = UserDetails("", "", "")
+    df_data_keeper = DataKeeper()
     guest_appbar = GuestAppBar(page).my_appbar
     guest_menu = GuestMenu(page).guest_menu
     user_appbar = UserAppBar(page).my_appbar
@@ -130,6 +144,43 @@ def main(page: ft.Page, url: str):
                     scroll=ft.ScrollMode.ALWAYS
                 )
             )
+
+        if page.route == "/former_data":
+            former_data = FormerData(page, url, user_information.info)
+            page.views.append(
+                ft.View(
+                    "former_data",
+                    [
+                        user_appbar,
+                        user_menu,
+                        former_data.column,
+                    ],
+                    scroll=ft.ScrollMode.ALWAYS
+                )
+            )
+            print(former_data.selected_table_df)
+            df_data_keeper.update_df_content(former_data.selected_table_df)
+            print(df_data_keeper.df)
+
+
+        if page.route == "/former_table":
+            print(df_data_keeper.df)
+            if df_data_keeper.df is not None:
+                former_table = FormerTable(page, df_data_keeper.df)
+                table_appbar.leading = ft.IconButton(icon=ft.icons.ARROW_BACK, on_click=lambda _: page.go("/former_data"))
+                page.views.append(
+                    ft.View(
+                        "former_table",
+                        [
+                            table_appbar,
+                            former_table.column,
+                        ],
+                        scroll=ft.ScrollMode.ALWAYS
+                    )
+                )
+            else:
+                print("former table error: routing app line 155")
+
         page.update()
 
     # def view_pop(view):
