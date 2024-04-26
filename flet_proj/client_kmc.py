@@ -111,8 +111,6 @@ class FilePicker:
     def text_button_clicked(self, e):
         self.items.remove(self.table_redirection_row)
         self.items.remove(self.confirmation_row)
-        self.items.remove(self.start_date_row)
-        self.items.remove(self.end_date_row)
         self.items.remove(self.upload_row)
         self.content.update()
         self.page.update()

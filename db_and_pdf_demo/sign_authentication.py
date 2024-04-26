@@ -48,9 +48,9 @@ Tables = sqlalchemy.Table('Tables', tables_db_metadata,
                                   sqlalchemy.Column('ID', sqlalchemy.Integer(), primary_key=True, index=True,
                                                     unique=True),
                                   sqlalchemy.Column('Username', sqlalchemy.String(255), primary_key=False,
-                                                    unique=True),
+                                                    ),
                                   sqlalchemy.Column('TimeStamp', sqlalchemy.String(255), primary_key=False,
-                                                    unique=True),
+                                                    ),
                                   sqlalchemy.Column('Table', sqlalchemy.JSON(), primary_key=False)
                                   )
 
@@ -219,8 +219,8 @@ async def save_table(username: str, password: str, time_stamp: str, json_df: str
 def main():
     # query0 = sqlalchemy.insert(Authentication).values(Email='omrid3103@gmail.com', Username='Omri', Password='oiedvdi')
     # session.execute(query0)
-    query = Authentication.select().where(Authentication.columns.Username != '')
-    print(auth_session.execute(query).fetchall())
+    query = Tables.select().where(Tables.columns.Username == "ronnieDagan")
+    print(tables_db_session.execute(query).fetchall())
     # session.commit()
     # print(sign_up('omrid310@gmail.com', 'pOmri', 'oiedvdi'))
     # print(sign_in('omrid31@gmail.com', 'pOmri1', 'oiedvdi'))
@@ -228,5 +228,5 @@ def main():
 
 
 if __name__ == '__main__':
-    # main()
-    uvicorn.run(app, host=IP, port=PORT)
+    main()
+    # uvicorn.run(app, host=IP, port=PORT)
