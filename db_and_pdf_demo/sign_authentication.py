@@ -3,21 +3,27 @@ from sqlalchemy.orm.session import sessionmaker
 import hashlib
 import uvicorn
 from fastapi import FastAPI, UploadFile, File
+import multipart
+# import jose
+from passlib.hash import bcrypt
 from validate_email import validate_email
 import json
 from secrets import token_hex
 import tempfile
+import pandas as pd
 import os
 
 
+
 app = FastAPI()
-engine = sqlalchemy.create_engine('sqlite:///datacamp.sqlite')
-conn = engine.connect()
-metadata = sqlalchemy.MetaData()
 
-Session = sessionmaker(bind=engine)
+auth_engine = sqlalchemy.create_engine('sqlite:///datacamp.sqlite')
+auth_conn = auth_engine.connect()
+auth_metadata = sqlalchemy.MetaData()
 
-Authentication = sqlalchemy.Table('Authentication', metadata,
+Auth_Session = sessionmaker(bind=auth_engine)
+
+Authentication = sqlalchemy.Table('Authentication', auth_metadata,
                                   sqlalchemy.Column('ID', sqlalchemy.Integer(), primary_key=True, index=True,
                                                     unique=True),
                                   sqlalchemy.Column('Email', sqlalchemy.String(255), primary_key=False,
@@ -27,8 +33,29 @@ Authentication = sqlalchemy.Table('Authentication', metadata,
                                   sqlalchemy.Column('Password', sqlalchemy.String(255), primary_key=False)
                                   )
 
-session = Session()
-metadata.create_all(engine)
+auth_session = Auth_Session()
+auth_metadata.create_all(auth_engine)
+
+#==========================================================================================================================
+
+tables_db_engine = sqlalchemy.create_engine('sqlite:///tablesDB.sqlite')
+tables_db_conn = tables_db_engine.connect()
+tables_db_metadata = sqlalchemy.MetaData()
+
+Tables_db_Session = sessionmaker(bind=tables_db_engine)
+
+Tables = sqlalchemy.Table('Tables', tables_db_metadata,
+                                  sqlalchemy.Column('ID', sqlalchemy.Integer(), primary_key=True, index=True,
+                                                    unique=True),
+                                  sqlalchemy.Column('Username', sqlalchemy.String(255), primary_key=False,
+                                                    unique=True),
+                                  sqlalchemy.Column('TimeStamp', sqlalchemy.String(255), primary_key=False,
+                                                    unique=True),
+                                  sqlalchemy.Column('Table', sqlalchemy.JSON(), primary_key=False)
+                                  )
+
+tables_db_session = Tables_db_Session()
+tables_db_metadata.create_all(tables_db_engine)
 
 # query = sqlalchemy.insert(HumanResources).values(DepartmentID=17, Name='Mathematics', GroupName='math')
 # session.execute(query)
@@ -61,7 +88,7 @@ PORT = 5555
 @app.get("/authenticate")
 def authenticate(email: str, username: str, password: str) -> dict:
     user_auth = Authentication.select().where(Authentication.columns.Username == username)
-    user_auth = session.execute(user_auth).fetchall()
+    user_auth = auth_session.execute(user_auth).fetchall()
     user_not_exist: bool = user_auth == []
 
     if user_not_exist:
@@ -83,14 +110,14 @@ def authenticate(email: str, username: str, password: str) -> dict:
 @app.get("/sign_up")
 def sign_up(email: str, username: str, password: str) -> dict:
     user_auth = Authentication.select().where(Authentication.columns.Username == username)
-    user_auth = session.execute(user_auth).fetchall()
+    user_auth = auth_session.execute(user_auth).fetchall()
     username_query: bool = user_auth == []
     if not username_query or username == '' or username == " " or len(username) <= 5:
         return {"response": "Username invalid!"}
     if not validate_email(email):
         return {"response": "Invalid email address!"}
     email_auth = Authentication.select().where(Authentication.columns.Email == email)
-    email_auth = session.execute(email_auth).fetchall()
+    email_auth = auth_session.execute(email_auth).fetchall()
     email_query: bool = email_auth == []
     if not email_query:
         return {"response": "Account with the same email exists!"}
@@ -100,27 +127,27 @@ def sign_up(email: str, username: str, password: str) -> dict:
     else:
         pass_hash = hashlib.sha256(password.encode()).hexdigest()
         insert_query = sqlalchemy.insert(Authentication).values(Email=email, Username=username, Password=pass_hash)
-        session.execute(insert_query)
-        session.commit()
+        auth_session.execute(insert_query)
+        auth_session.commit()
         return {"response": "Signed up successfully!"}
 
 
 @app.get("/update_information")
 def update_information(old_username: str, new_username: str, new_email: str, new_password: str) -> dict:
     user_auth = Authentication.select().where(Authentication.columns.Username == old_username)
-    user_auth = session.execute(user_auth).fetchall()
+    user_auth = auth_session.execute(user_auth).fetchall()
     username_query: bool = user_auth == []
     if username_query:
         return {"response": "Username doesn't exist!"}
     other_user_username = Authentication.select().where(Authentication.columns.Username == new_username)
-    other_user_username = session.execute(other_user_username).fetchall()
+    other_user_username = auth_session.execute(other_user_username).fetchall()
     username_query = other_user_username == []
     if not username_query or new_username == '' or new_username == " " or len(new_username) <= 5:
         return {"response": "Username Taken!"}
     if not validate_email(new_email):
         return {"response": "Invalid email address!"}
     email_auth = Authentication.select().where(Authentication.columns.Email == new_email)
-    email_auth = session.execute(email_auth).fetchall()
+    email_auth = auth_session.execute(email_auth).fetchall()
     email_query: bool = email_auth == []
     if not email_query:
         return {"response": "Account with the same email exists!"}
@@ -130,8 +157,8 @@ def update_information(old_username: str, new_username: str, new_email: str, new
     else:
         pass_hash = hashlib.sha256(new_password.encode()).hexdigest()
         update_query = sqlalchemy.update(Authentication).where(Authentication.columns.Username == old_username).values(Email=new_email, Username=new_username, Password=pass_hash)
-        session.execute(update_query)
-        session.commit()
+        auth_session.execute(update_query)
+        auth_session.commit()
         return {"response": "Details Updated Successfully!"}
 
 
@@ -169,12 +196,31 @@ def pdf_file_name_generator(file_name: str):
             flag = True
     return file_name
 
+#==================================================================================================================================
+
+
+@app.post("/save_table")
+async def save_table(username: str, password: str, time_stamp: str, json_df: str):
+    username_auth = Authentication.select().where(Authentication.columns.Username == username)
+    username_auth = auth_session.execute(username_auth).fetchall()
+    pass_hash = hashlib.sha256(password.encode()).hexdigest()
+
+    if username_auth != []:
+        if not any(data[-1] == pass_hash for data in username_auth):
+            return {"success": False, "response": "Not Matching Password"}
+
+        insert_query = sqlalchemy.insert(Tables).values(Username=username, TimeStamp=time_stamp, Table=json_df)
+        tables_db_session.execute(insert_query)
+        tables_db_session.commit()
+        return {"success": True, "response": "Table Saved Successfully"}
+    else:
+        return {"success": False, "response": "Username Does Not Exist"}
 
 def main():
     # query0 = sqlalchemy.insert(Authentication).values(Email='omrid3103@gmail.com', Username='Omri', Password='oiedvdi')
     # session.execute(query0)
     query = Authentication.select().where(Authentication.columns.Username != '')
-    print(session.execute(query).fetchall())
+    print(auth_session.execute(query).fetchall())
     # session.commit()
     # print(sign_up('omrid310@gmail.com', 'pOmri', 'oiedvdi'))
     # print(sign_in('omrid31@gmail.com', 'pOmri1', 'oiedvdi'))

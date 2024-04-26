@@ -116,7 +116,10 @@ def main(page: ft.Page, url: str):
             )
 
         if page.route == "/data_table":
-            data_table = DataTable(page, url, file_picker.file_name).column
+            if file_picker.table_time_stamp == "":
+                data_table = DataTable(page, url, user_information.info, file_picker.file_name).column
+            else:
+                data_table = DataTable(page, url, user_information.info, file_picker.file_name, file_picker.table_time_stamp).column
             page.views.append(
                 ft.View(
                     "data_table",

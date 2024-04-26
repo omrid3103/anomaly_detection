@@ -1,22 +1,40 @@
 import flet as ft
 import numpy as np
-
+import json
 from db_and_pdf_demo import kmc_controller
 from db_and_pdf_demo import kmeans_clustering
 import pandas as pd
 from typing import Union
-
+import requests
+import time
 
 class DataTable:
 
-    def __init__(self, page: ft.Page, url: str, pdf_path: str = r"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\db_and_pdf_demo\client_data_table0.pdf"):
+    def __init__(self, page: ft.Page, url: str, info: dict, pdf_path: str = r"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\db_and_pdf_demo\client_data_table0.pdf", time_stamp: str = ""):
         self.page = page
         self.request_url = url
+        self.username = info["username"]
+        self.password = info["password"]
+        self.table_time_stamp = time_stamp
+        print(self.table_time_stamp)
         self.page.scroll = True
         if pdf_path != "":
             self.controller = kmc_controller.KMCController(pdf_path)
         else:
             self.controller = kmc_controller.KMCController(r"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\db_and_pdf_demo\client_data_table0.pdf")
+
+        self.COLORS: dict[ft.colors, str] = {
+                "Yellow": ft.colors.YELLOW_200,
+                "Teal": ft.colors.TEAL_50,
+                "Blue": ft.colors.BLUE_100,
+                "Red": ft.colors.RED_200,
+                "Purple": ft.colors.PURPLE_200,
+                "Green": ft.colors.GREEN_200,
+                "Orange": ft.colors.ORANGE_200,
+                "Pink": ft.colors.PINK_200,
+                "Cyan": ft.colors.CYAN_50
+        }
+
         self.controller.pdf_to_csv()
         self.controller.csv_to_dataframe()
         self.df: pd.DataFrame = self.controller.df
@@ -33,8 +51,10 @@ class DataTable:
 
         self.dropdown_obj = ft.Dropdown(
             width=170,
-            options=self.dropdown_options_generation(),
-            on_change=self.dropdown_button_clicked
+            options=self.search_dropdown_options_generation(),
+            hint_text="Filter Table",
+            on_change=self.dropdown_button_clicked,
+            visible=False
         )
         self.data_not_found = ft.Text("Data was not found...", weight="bold", size=20)
 
@@ -42,7 +62,14 @@ class DataTable:
         # ************************   Search TextField   ***********************************
         # =================================================================================
 
-        self.search_field = ft.TextField(label="search", width=350, on_change=self.input_changed)
+        self.search_field = ft.TextField(label="search", width=350, on_change=self.search_field_input_changed, visible=False)
+        self.color_dropdown = ft.Dropdown(
+            width=150,
+            options=self.colors_dropdown_options_generation(),
+            hint_text="Color Cluster",
+            on_change=self.color_dropdown_changed,
+            visible=False
+        )
 
 
         # =================================================================================
@@ -69,12 +96,15 @@ class DataTable:
         )
         self.kmc_button = ft.ElevatedButton("kmc the table", on_click=self.kmc_table_definition)
 
+        self.save_table = ft.ElevatedButton("Save table", on_click=self.save_table_in_db)
 
-        self.search_row = ft.Row([self.dropdown_obj, self.search_field], spacing=80)
+
+        self.search_row = ft.Row([self.kmc_button, self.dropdown_obj, self.search_field, self.color_dropdown], spacing=80)
+        self.save_row = ft.Row([self.save_table])
         self.message_row = ft.Row([self.data_not_found])
-        self.table_row = ft.Row([self.data_table, self.kmc_button])
+        self.table_row = ft.Row([self.data_table])
 
-        self.items = [self.search_row, self.table_row]
+        self.items = [self.search_row, self.save_row, self.table_row]
         self.column = ft.Column(spacing=20, controls=self.items)
         self.column.scroll = ft.ScrollMode.ALWAYS
 
@@ -129,24 +159,44 @@ class DataTable:
     # *******************   Dropdown Options & Button  ********************************
     # =================================================================================
 
-
-    def dropdown_options_generation(self) -> list[ft.dropdown.Option]:
+    def colors_dropdown_options_generation(self) -> list[ft.dropdown.Option]:
+        options_list = []
+        for c in self.COLORS.keys():
+            options_list.append(
+                ft.dropdown.Option(c)
+            )
+        options_list.append(ft.dropdown.Option("None"))
+        return options_list
+    def search_dropdown_options_generation(self) -> list[ft.dropdown.Option]:
         options_list = []
         for i in range(len(self.columns_names_list)):
             if isinstance(self.df.iloc[0, i], str):
                 options_list.append(
                     ft.dropdown.Option(f"{self.columns_names_list[i]}")
                 )
+        options_list.append(ft.dropdown.Option("Cluster Color"))
         return options_list
 
     def dropdown_button_clicked(self, e):
-        for k in range(len(self.columns_names_list)):
-            if self.dropdown_obj.value == self.columns_names_list[k]:
-                self.search_field.hint_text = f"Search in the {self.dropdown_obj.value} column..."
-        self.search_field.update()
+        if self.dropdown_obj.value != "Cluster Color":
+            for k in range(len(self.columns_names_list)):
+                if self.dropdown_obj.value == self.columns_names_list[k]:
+                    self.search_field.hint_text = f"Search in the {self.dropdown_obj.value} column..."
+            self.search_field.visible = True
+            if self.color_dropdown in self.search_row.controls:
+                self.color_dropdown.visible = False
+                self.color_dropdown.update()
+            self.search_field.update()
+        else:
+            if self.search_field in self.search_row.controls:
+                self.search_field.visible = False
+                self.search_field.update()
+            self.color_dropdown.visible = True
+            self.color_dropdown.update()
+        self.search_row.update()
         self.page.update()
 
-    def input_changed(self, e):
+    def search_field_input_changed(self, e):
 
         def cells_generation(x_c: dict[str, str]) -> list[ft.DataCell]:
             cells_g = []
@@ -165,8 +215,9 @@ class DataTable:
                     return i
 
         search_name = self.search_field.value
+        dropdown_value = self.dropdown_obj.value
 
-        my_filtered_df = self.df[self.df[self.columns_names_list[self.columns_names_list.index(self.dropdown_obj.value)]].str.contains(search_name)]
+        my_filtered_df = self.df[self.df[self.columns_names_list[self.columns_names_list.index(dropdown_value)]].str.contains(search_name)]
         my_filter = my_filtered_df.astype(str).to_dict(orient='records')
         self.data_table.rows = []
 
@@ -201,14 +252,32 @@ class DataTable:
         self.page.update()
 
 
+    def color_dropdown_changed(self, e):
+        if self.color_dropdown.value != "None":
+            flet_row_color: ft.colors = self.COLORS[self.color_dropdown.value]
+            rows_to_present: list[ft.DataRow] = []
+            for r in self.data_table.rows:
+                if r.color == flet_row_color:
+                    rows_to_present.append(r)
+            self.data_table.rows = rows_to_present
+            if len(rows_to_present) == 0:
+                self.items.remove(self.table_row)
+                self.items.append(self.message_row)
+                self.items.append(self.table_row)
+        else:
+            if self.message_row in self.items:
+                self.items.remove(self.message_row)
+            self.data_table.rows = self.table_rows_generation()
+
+        self.data_table.update()
+        self.page.update()
+
+
     def kmc_table_definition(self, e) -> None:
         points_coordinates_array: np.ndarray = kmc_controller.KMeansTable(self.df).define_features()
-        most_efficient_number_of_clusters = kmeans_clustering.most_efficient_n_of_clusters(points_coordinates_array, 3, 9)
+        most_efficient_number_of_clusters = kmeans_clustering.most_efficient_n_of_clusters(points_coordinates_array, 5, 9)
         grouping_list: list[list[int]] = kmeans_clustering.kmc(points_coordinates_array, most_efficient_number_of_clusters, iterations=35)[1]
         grouping_list_length = sum(len(sublist) for sublist in grouping_list)
-
-        COLORS: list[ft.colors] = [ft.colors.YELLOW_200, ft.colors.TEAL_50, ft.colors.BLUE_100, ft.colors.RED_200, ft.colors.BLUE_200,
-                  ft.colors.GREEN_200, ft.colors.ORANGE_200, ft.colors.PINK_200, ft.colors.CYAN_50]
 
         def group_index(g_list: list[list[int]], index_to_check: int) -> int:
             for g_index, g in enumerate(g_list):
@@ -218,39 +287,49 @@ class DataTable:
 
         if grouping_list_length == len(self.data_table.rows):
             for i, r in enumerate(self.data_table.rows):
-                r.color = COLORS[group_index(grouping_list, i)]
+                r.color = list(self.COLORS.values())[group_index(grouping_list, i)]
                 self.row_colors.append(r.color)
-            self.table_row.controls.remove(self.kmc_button)
+            self.search_row.controls.remove(self.kmc_button)
+            self.dropdown_obj.visible = True
             self.data_table.update()
             self.column.update()
             self.page.update()
 
+    def save_table_in_db(self, e):
+        payload = {
+            "username": self.username,
+            "password": self.password,
+            "time_stamp": self.table_time_stamp,
+            "json_df": self.df.to_json(orient='records')
+        }
+        result = requests.post(f"{self.request_url}save_table", params=payload).json()
+        print(result)
+        if result["success"]:
+            successful_save_msg = ft.Text("Table has been saved!", visible=True,
+                                   weight=ft.FontWeight("bold"), color=ft.colors.GREEN_400, size=15)
+            self.save_row.controls.append(successful_save_msg)
+            self.save_row.update()
+            self.column.update()
+            self.page.update()
+            time.sleep(1)
+            self.items.remove(self.save_row)
+        else:
+            failed_save_msg = ft.Text("Something went wrong. Try again", visible=True,
+                                   weight=ft.FontWeight("bold"), color=ft.colors.RED_400, size=15)
+            self.save_row.controls.append(failed_save_msg)
+        self.save_row.update()
+        self.column.update()
+        self.page.update()
+        # def save_table(username: str, password: str, json_df: dict, time_stamp: str):
+        # return {"success": False, "response": "Not Matching Password"}
 
 
+
+    #🦾🫡🪖
 
     def main(self) -> None:
-        # page.scroll = ft.ScrollMode.HIDDEN
-        # page.auto_scroll = True
+
         self.page.theme_mode = ft.ThemeMode.LIGHT
-        # self.page.theme = ft.Theme(
-        #     scrollbar_theme=ft.ScrollbarTheme(
-        #         track_color={
-        #             ft.MaterialState.HOVERED: ft.colors.AMBER,
-        #             ft.MaterialState.DEFAULT: ft.colors.TRANSPARENT,
-        #         },
-        #         track_visibility=True,
-        #         track_border_color=ft.colors.BLUE,
-        #         thumb_visibility=True,
-        #         thumb_color={
-        #             ft.MaterialState.HOVERED: ft.colors.RED,
-        #             ft.MaterialState.DEFAULT: ft.colors.GREY_300,
-        #         },
-        #         thickness=30,
-        #         radius=15,
-        #         main_axis_margin=5,
-        #         cross_axis_margin=10,
-        #     )
-        # )
         self.page.add(self.column)
         # self.page.floating_action_button = ft.FloatingActionButton(
         #     icon=ft.icons.ADD, on_click=self.fab_pressed, bgcolor=ft.colors.BLUE_200)
