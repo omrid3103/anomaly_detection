@@ -248,8 +248,14 @@ async def extract_user_data(username: str, password: str):
 def main():
     # query0 = sqlalchemy.insert(Authentication).values(Email='omrid3103@gmail.com', Username='Omri', Password='oiedvdi')
     # session.execute(query0)
+
+    query = sqlalchemy.delete(Tables).where(Tables.columns.Username == "ronnieDagan")
+    tables_db_session.execute(query)
+    tables_db_session.commit()
+
     query = Tables.select().where(Tables.columns.Username == "ronnieDagan")
     print(tables_db_session.execute(query).fetchall())
+
     # session.commit()
     # print(sign_up('omrid310@gmail.com', 'pOmri', 'oiedvdi'))
     # print(sign_in('omrid31@gmail.com', 'pOmri1', 'oiedvdi'))

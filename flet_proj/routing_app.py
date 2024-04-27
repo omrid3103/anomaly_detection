@@ -43,6 +43,7 @@ def main(page: ft.Page, url: str):
     sign_up = SignUp(page, url)
     sign_in = SignIn(page, url)
     file_picker = FilePicker(page, url)
+    former_data: Union[FormerData, None] = None
 
 
 
@@ -146,6 +147,7 @@ def main(page: ft.Page, url: str):
             )
 
         if page.route == "/former_data":
+            global former_data
             former_data = FormerData(page, url, user_information.info)
             page.views.append(
                 ft.View(
@@ -159,12 +161,12 @@ def main(page: ft.Page, url: str):
                 )
             )
             print(former_data.selected_table_df)
-            df_data_keeper.update_df_content(former_data.selected_table_df)
+
             print(df_data_keeper.df)
 
 
         if page.route == "/former_table":
-            print(df_data_keeper.df)
+            df_data_keeper.update_df_content(former_data.selected_table_df)
             if df_data_keeper.df is not None:
                 former_table = FormerTable(page, df_data_keeper.df)
                 table_appbar.leading = ft.IconButton(icon=ft.icons.ARROW_BACK, on_click=lambda _: page.go("/former_data"))

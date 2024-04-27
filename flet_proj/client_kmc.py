@@ -79,9 +79,9 @@ class FilePicker:
         self.start_date_row = ft.Row([self.start_date_button])
         self.end_date_row = ft.Row([self.end_date_button])
         self.upload_row = ft.Row([self.upload_button])
-        self.confirmation_row = ft.Row([self.confirmation])
-        self.table_redirection_row = ft.Row([self.table_welcoming_text_button])
-        self.items = [self.buttons_row, self.start_date_row, self.end_date_row, self.upload_row]
+        self.confirmation_row = ft.Row([self.confirmation], visible=False)
+        self.table_redirection_row = ft.Row([self.table_welcoming_text_button], visible=False)
+        self.items = [self.buttons_row, self.start_date_row, self.end_date_row, self.upload_row, self.confirmation_row, self.table_redirection_row]
         self.content = ft.Column(spacing=20, controls=self.items)
 
     def pick_files_result(self, e: ft.FilePickerResultEvent):
@@ -103,15 +103,20 @@ class FilePicker:
         print(result["file_path"])
         if response:
             self.file_name = result["file_path"]
-            self.items.append(self.confirmation_row)
-            self.items.append(self.table_redirection_row)
+            self.confirmation_row.visible = True
+            self.confirmation_row.update()
+            self.table_redirection_row.visible = True
+            self.table_redirection_row.update()
             self.content.update()
             self.page.update()
 
     def text_button_clicked(self, e):
-        self.items.remove(self.table_redirection_row)
-        self.items.remove(self.confirmation_row)
-        self.items.remove(self.upload_row)
+        self.table_redirection_row.visible = False
+        self.table_redirection_row.update()
+        self.confirmation_row.visible = False
+        self.confirmation_row.update()
+        self.upload_row.visible = False
+        self.upload_row.update()
         self.start_date_row.controls.remove(self.start_date_row.controls[1])
         self.end_date_row.controls.remove(self.end_date_row.controls[1])
         self.content.update()
@@ -120,7 +125,8 @@ class FilePicker:
 
     def start_change_date(self, e):
         if self.start_date_value != "":
-            self.start_date_row.controls.remove(self.start_date_row.controls[1])
+            if len(self.start_date_row.controls) > 1:
+                self.start_date_row.controls.remove(self.start_date_row.controls[1])
             self.content.update()
             self.page.update()
         self.start_date_value = self.start_date_picker.value.strftime("%d/%m/%y")
@@ -133,7 +139,8 @@ class FilePicker:
 
     def end_change_date(self, e):
         if self.end_date_value != "":
-            self.end_date_row.controls.remove(self.end_date_row.controls[1])
+            if len(self.end_date_row.controls) > 1:
+                self.end_date_row.controls.remove(self.end_date_row.controls[1])
             self.content.update()
             self.page.update()
         self.end_date_value = self.end_date_picker.value.strftime("%d/%m/%y")
@@ -143,6 +150,7 @@ class FilePicker:
         self.end_date_row.controls.append(end_date_msg)
         self.end_date_row.update()
         self.upload_button.visible = True
+        self.upload_row.visible = True
         self.upload_row.update()
         self.content.update()
         self.page.update()

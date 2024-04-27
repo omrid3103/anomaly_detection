@@ -259,7 +259,7 @@ class FormerTable:
         self.page.update()
 
 
-    def kmc_table_definition(self) -> None:
+    def kmc_table_definition(self, e) -> None:
         points_coordinates_array: np.ndarray = kmc_controller.KMeansTable(self.df).define_features()
         most_efficient_number_of_clusters = kmeans_clustering.most_efficient_n_of_clusters(points_coordinates_array, 5, 9)
         grouping_list: list[list[int]] = kmeans_clustering.kmc(points_coordinates_array, most_efficient_number_of_clusters, iterations=35)[1]
