@@ -7,6 +7,7 @@ import pandas as pd
 from typing import Union
 import requests
 import time
+from io import StringIO
 
 class DataTable:
 
@@ -19,9 +20,9 @@ class DataTable:
         print(self.table_time_stamp)
         self.page.scroll = True
         if pdf_path != "":
-            self.controller = kmc_controller.KMCController(pdf_path)
+            self.data = requests.get(f"{self.request_url}controller_actions", params={"pdf_path": pdf_path}).json()
         else:
-            self.controller = kmc_controller.KMCController(r"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\db_and_pdf_demo\client_data_table0.pdf")
+            self.data = requests.get(f"{self.request_url}controller_actions", params={"pdf_path": r"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\db_and_pdf_demo\client_data_table0.pdf"}).json()
 
         self.COLORS: dict[ft.colors, str] = {
                 "Yellow": ft.colors.YELLOW_200,
@@ -35,9 +36,12 @@ class DataTable:
                 "Cyan": ft.colors.CYAN_50
         }
 
-        self.controller.pdf_to_csv()
-        self.controller.csv_to_dataframe()
-        self.df: pd.DataFrame = self.controller.df
+        self.df = StringIO(self.data["json_df"])
+        self.df: pd.DataFrame = pd.read_json(self.df)
+
+        # self.points_coordinates = self.data["points_array"].decode()
+        self.points_coordinates = json.loads(self.data["points_array"])
+        self.points_coordinates = np.array(self.points_coordinates)
 
         self.columns_names_list = self.df.columns.tolist()
         self.num_rows: int = self.df.shape[0]
@@ -274,9 +278,18 @@ class DataTable:
 
 
     def kmc_table_definition(self, e) -> None:
-        points_coordinates_array: np.ndarray = kmc_controller.KMeansTable(self.df).define_features()
-        most_efficient_number_of_clusters = kmeans_clustering.most_efficient_n_of_clusters(points_coordinates_array, 5, 9)
-        grouping_list: list[list[int]] = kmeans_clustering.kmc(points_coordinates_array, most_efficient_number_of_clusters, iterations=35)[1]
+        payload = {"points_coordinates": json.dumps(self.points_coordinates.tolist()), "min_clusters_to_check": 4, "max_clusters_to_check": 9}
+        returned_dict = requests.get(f"{self.request_url}most_efficient_n_of_clusters", params=payload).json()
+        if returned_dict["success"]:
+            most_efficient_number_of_clusters = returned_dict["n_clusters"]
+        else:
+            most_efficient_number_of_clusters = 4
+
+
+        returned_dict = requests.get(f"{self.request_url}kmc_server",
+                                     params={"points_array": json.dumps(self.points_coordinates.tolist()), "n_clusters": most_efficient_number_of_clusters, "iterations": 35}).json()
+        # {"centers_array": centers_array, "grouping_list": grouping_list}
+        grouping_list: list[list[int]] = json.loads(returned_dict["grouping_list"])
         grouping_list_length = sum(len(sublist) for sublist in grouping_list)
 
         def group_index(g_list: list[list[int]], index_to_check: int) -> int:

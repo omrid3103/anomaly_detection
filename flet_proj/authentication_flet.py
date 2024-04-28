@@ -72,9 +72,9 @@ class SignIn:
         self.details: dict[str, str] = {"username": "", "email": "", "password": ""}
         self.page = page
         self.request_url = url
-        self.username_tb = ft.TextField(label="Username", max_lines=1, width=280, hint_text="Enter username here", value="ronnieDagan")
-        self.email_tb = ft.TextField(label="Email", max_lines=1, width=280, hint_text="Enter email here", keyboard_type=ft.KeyboardType.EMAIL, value="ronniedag26@gmail.com")
-        self.password_tb = ft.TextField(label="Password", password=True, can_reveal_password=True, max_lines=1, width=280, hint_text="Enter password here", value="ronnie1971")
+        self.username_tb = ft.TextField(label="Username", max_lines=1, width=280, hint_text="Enter username here", value="Sxd3306")
+        self.email_tb = ft.TextField(label="Email", max_lines=1, width=280, hint_text="Enter email here", keyboard_type=ft.KeyboardType.EMAIL, value="shadag71@gmail.com")
+        self.password_tb = ft.TextField(label="Password", password=True, can_reveal_password=True, max_lines=1, width=280, hint_text="Enter password here", value="79741BSN")
         self.submit_button = ft.ElevatedButton(text="Sign Me In!", color=ft.colors.BLUE_300, on_click=self.sign_in_button_clicked)
         self.items = [self.username_tb, self.email_tb, self.password_tb, self.submit_button]
         self.column = ft.Column(spacing=20, controls=self.items)
@@ -184,15 +184,6 @@ class UpdateDetails:
                                           "new_password": self.password_tb.value}).json()
             response = result["response"]
             print(response)
-            if response == "Username doesn't exist!" or response == "Username Taken!":
-                self.username_tb.border_color = ft.colors.RED_400
-                self.username_tb.value = self.details["username"]
-                self.username_tb.label = response
-                # self.username_tb.hint_text = self.details["username"]
-                self.email_tb.border_color = ft.colors.SURFACE_VARIANT
-                self.password_tb.border_color = ft.colors.SURFACE_VARIANT
-                self.email_tb.label = "Email"
-                self.password_tb.label = "Password"
             if response == "Invalid email address!" or response == "Account with the same email exists!":
                 self.email_tb.border_color = ft.colors.RED_400
                 self.email_tb.value = self.details["email"]
@@ -224,11 +215,16 @@ class UpdateDetails:
                 # self.email_tb.value = self.details["email"]
                 # self.password_tb.value = self.details["password"]
                 self.details.update()
+                self.title_text.update()
+                self.email_tb.value = self.details["email"]
+                self.email_tb.update()
+                self.password_tb.value = self.details["password"]
+                self.password_tb.update()
+                self.column.update()
                 self.page.update()
-                time.sleep(2)
-                self.page.go('/user_home')
+                time.sleep(1)
+                self.page.go("/guest_home")
             # need to check if the new details aren't similar to any other clients
-
 
 
 

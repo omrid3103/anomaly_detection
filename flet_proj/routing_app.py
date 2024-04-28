@@ -55,6 +55,11 @@ def main(page: ft.Page, url: str):
         if password != "":
             user_information.info["password"] = password
 
+    def reset_information():
+        user_information.info["username"] = ""
+        user_information.info["email"] = ""
+        user_information.info["password"] = ""
+
 
     def route_change(route):
         page.views.clear()
@@ -68,6 +73,8 @@ def main(page: ft.Page, url: str):
                 ],
             )
         )
+        if page.route == "/guest_home":
+            reset_information()
         if page.route == "/sign_up":
             page.views.append(
                 ft.View(
@@ -93,6 +100,8 @@ def main(page: ft.Page, url: str):
         insert_user_information(sign_up.details["username"], sign_up.details["email"], sign_up.details["password"])
         insert_user_information(sign_in.details["username"], sign_in.details["email"], sign_in.details["password"])
         update_details = UpdateDetails(page, user_information.info["username"], user_information.info["email"], user_information.info["password"], url)
+
+
         if page.route == "/user_home":
             page.views.append(
                 ft.View(
@@ -104,6 +113,7 @@ def main(page: ft.Page, url: str):
                     ],
                 )
             )
+            user_appbar.leading = ft.TextButton(text=f"{user_information.info['username']}", disabled=True)
         if page.route == "/update_details":
             page.views.append(
                 ft.View(
@@ -115,9 +125,8 @@ def main(page: ft.Page, url: str):
                     ],
                 )
             )
-        if user_information.info["username"] != update_details.details["username"]:
+        if user_information.info["email"] != update_details.details["email"] or user_information.info["password"] != update_details.details["password"]:
             user_information.update_info(update_details.details["username"], update_details.details["email"], update_details.details["password"])
-
         if page.route == "/client_kmc":
             page.views.append(
                 ft.View(
@@ -168,7 +177,7 @@ def main(page: ft.Page, url: str):
         if page.route == "/former_table":
             df_data_keeper.update_df_content(former_data.selected_table_df)
             if df_data_keeper.df is not None:
-                former_table = FormerTable(page, df_data_keeper.df)
+                former_table = FormerTable(page, url, df_data_keeper.df)
                 table_appbar.leading = ft.IconButton(icon=ft.icons.ARROW_BACK, on_click=lambda _: page.go("/former_data"))
                 page.views.append(
                     ft.View(

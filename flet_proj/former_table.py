@@ -11,8 +11,9 @@ import time
 
 class FormerTable:
 
-    def __init__(self, page: ft.Page, table_df: pd.DataFrame):
+    def __init__(self, page: ft.Page, url: str, table_df: pd.DataFrame):
         self.page = page
+        self.request_url = url
         self.COLORS: dict[ft.colors, str] = {
                 "Yellow": ft.colors.YELLOW_200,
                 "Teal": ft.colors.TEAL_50,
@@ -27,6 +28,7 @@ class FormerTable:
 
 
         self.df: pd.DataFrame = table_df
+        self.points_coordinates = np.array(json.loads(requests.get(f"{self.request_url}get_points_array", params={"json_df": self.df.to_json(orient='records')}).json()["points_array"]))
 
         self.columns_names_list = self.df.columns.tolist()
         self.num_rows: int = self.df.shape[0]
@@ -98,6 +100,7 @@ class FormerTable:
     # =================================================================================
     # *******   DataFrame Information Extraction Into Columns & Rows   ****************
     # =================================================================================
+
 
     def table_columns_generation(self) -> list[ft.DataColumn]:
         columns_list = []
@@ -260,9 +263,21 @@ class FormerTable:
 
 
     def kmc_table_definition(self, e) -> None:
-        points_coordinates_array: np.ndarray = kmc_controller.KMeansTable(self.df).define_features()
-        most_efficient_number_of_clusters = kmeans_clustering.most_efficient_n_of_clusters(points_coordinates_array, 5, 9)
-        grouping_list: list[list[int]] = kmeans_clustering.kmc(points_coordinates_array, most_efficient_number_of_clusters, iterations=35)[1]
+        json_points = self.points_coordinates.tolist()
+        json_points = json.dumps(json_points)
+        returned_dict = requests.get(f"{self.request_url}most_efficient_n_of_clusters",
+                                     params={"points_json": json_points, "min_clusters_to_check": 4, "max_clusters_to_check": 15}).json()
+        if returned_dict["success"]:
+            most_efficient_number_of_clusters = returned_dict["n_clusters"]
+        else:
+            most_efficient_number_of_clusters = 4
+        print(most_efficient_number_of_clusters)
+
+
+        returned_dict = requests.get(f"{self.request_url}kmc_server",
+                                     params={"points_array": json.dumps(self.points_coordinates.tolist()), "n_clusters": most_efficient_number_of_clusters, "iterations": 35}).json()
+        # {"centers_array": centers_array, "grouping_list": grouping_list}
+        grouping_list: list[list[int]] = json.loads(returned_dict["grouping_list"])
         grouping_list_length = sum(len(sublist) for sublist in grouping_list)
 
         def group_index(g_list: list[list[int]], index_to_check: int) -> int:

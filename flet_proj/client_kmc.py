@@ -134,6 +134,10 @@ class FilePicker:
                                weight=ft.FontWeight("bold"), color=ft.colors.BLUE_400, size=20)
         self.start_date_row.controls.append(start_date_msg)
         self.start_date_row.update()
+        if self.end_date_value != "":
+            self.upload_button.visible = True
+            self.upload_row.visible = True
+            self.upload_row.update()
         self.content.update()
         self.page.update()
 
@@ -149,9 +153,10 @@ class FilePicker:
                                weight=ft.FontWeight("bold"), color=ft.colors.BLUE_400, size=20)
         self.end_date_row.controls.append(end_date_msg)
         self.end_date_row.update()
-        self.upload_button.visible = True
-        self.upload_row.visible = True
-        self.upload_row.update()
+        if self.start_date_value != "":
+            self.upload_button.visible = True
+            self.upload_row.visible = True
+            self.upload_row.update()
         self.content.update()
         self.page.update()
 

@@ -50,7 +50,7 @@ def generate_data(rows):
 
 
 # Create data for the table
-data = generate_data(50)
+data = generate_data(200)
 print(data)
 
 # Add column headers

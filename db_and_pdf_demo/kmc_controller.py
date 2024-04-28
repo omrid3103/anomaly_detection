@@ -47,7 +47,7 @@ class KMCController:
             all_table_data = []
 
             # Loop over the first two pages
-            for page_number in range(2):
+            for page_number in range(len(pdf.pages)):
                 # Extract text from the current page
                 page = pdf.pages[page_number]
                 text = page.extract_text()
@@ -205,7 +205,7 @@ class KMeansTable:
 # =================================================================================
 
 
-def kmc_controller_main(pdf_file_path: str = r"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\db_and_pdf_demo\client_data_table0.pdf"):
+def kmc_controller_main(pdf_file_path: str = r"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\db_and_pdf_demo\client_data_table0.pdf") -> tuple[np.ndarray, pd.DataFrame]:
 
     controller = KMCController(pdf_file_path)
     controller.pdf_to_csv()
@@ -216,8 +216,8 @@ def kmc_controller_main(pdf_file_path: str = r"C:\Users\Sharon's PC\PycharmProje
     table_arr = k_table.define_features()
     # for i, r in enumerate(table_arr):
     #     print(i, r)
-    return table_arr
+    return table_arr, controller.df
 
 
 if __name__ == "__main__":
-    kmc_controller_main()
+    print(kmc_controller_main()[1])

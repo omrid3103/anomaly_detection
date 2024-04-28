@@ -12,7 +12,9 @@ from secrets import token_hex
 import tempfile
 import pandas as pd
 import os
-
+from kmeans_clustering import *
+from kmc_controller import *
+from io import StringIO
 
 
 app = FastAPI()
@@ -139,11 +141,6 @@ def update_information(old_username: str, new_username: str, new_email: str, new
     username_query: bool = user_auth == []
     if username_query:
         return {"response": "Username doesn't exist!"}
-    other_user_username = Authentication.select().where(Authentication.columns.Username == new_username)
-    other_user_username = auth_session.execute(other_user_username).fetchall()
-    username_query = other_user_username == []
-    if not username_query or new_username == '' or new_username == " " or len(new_username) <= 5:
-        return {"response": "Username Taken!"}
     if not validate_email(new_email):
         return {"response": "Invalid email address!"}
     email_auth = Authentication.select().where(Authentication.columns.Email == new_email)
@@ -244,6 +241,86 @@ async def extract_user_data(username: str, password: str):
         return {"success": True, "response": "Sending data", "data": list_of_dicts}
     else:
         return {"success": False, "response": "Username Does Not Exist"}
+
+
+@app.get("/kmc_server")
+def kmc_server(
+        points_array: bytes,
+        n_clusters: int,
+        centers_array: Union[bytes, None] = None,
+        iterations: int = 10
+) -> dict:
+    try:
+        points_array = np.array(json.loads(points_array))
+        if centers_array is None:
+            random_indices = np.random.choice(points_array.shape[0], size=n_clusters, replace=False)
+            centers_array = points_array[random_indices]
+        else:
+            centers_array = json.loads(centers_array)
+        grouping_list = clusters_groups_division(points_array, centers_array, n_clusters)
+        # for i, p in enumerate(points_array):
+        #     print(i, p)
+        # print("Test run #1")
+        # print(centers_array)
+        # print(grouping_list)
+        # print("\n")
+        for i in range(iterations):
+            # print("Test run #" + str(i + 2))
+            centers_array = new_centers(points_array, grouping_list)
+            # print(new_centers_arr)
+            grouping_list = clusters_groups_division(points_array, centers_array, n_clusters)
+            # print(grouping_list)
+            # print("\n")
+        return {"centers_array": json.dumps(centers_array.tolist()), "grouping_list": json.dumps(grouping_list)}
+
+    except:
+        return {"success": False}
+
+
+@app.get("/most_efficient_n_of_clusters")
+def most_efficient_n_of_clusters(points_json: str, min_clusters_to_check: int = 2, max_clusters_to_check: int = 8) -> dict:
+    # try:
+    points_coordinates = np.array(json.loads(points_json))
+    silhouette_scores_list = []
+    random_indices = np.random.choice(points_coordinates.shape[0], size=max_clusters_to_check, replace=False)
+    centers_coordinates = points_coordinates[random_indices]
+    for i in range(min_clusters_to_check, max_clusters_to_check + 1):
+        updated_centers, grouping_list = kmc(points_coordinates, i, centers_coordinates[:i, :], 10)
+        silhouette_score_of_i: float = silhouette_score(points_coordinates, updated_centers, grouping_list)
+        if math.isnan(silhouette_score_of_i):
+            silhouette_scores_list.append(-1.0)
+        else:
+            silhouette_scores_list.append(silhouette_score_of_i)
+    silhouette_scores_array = np.array(silhouette_scores_list)
+    most_efficient_n = int(silhouette_scores_array.argmax() + min_clusters_to_check)
+    return {"success": True, "n_clusters": most_efficient_n}
+
+    # except:
+    #     return {"success": False}
+
+
+@app.get("/controller_actions")
+def controller_actions(pdf_path: str) -> dict:
+        returned_tuple: tuple[np.ndarray, pd.DataFrame] = kmc_controller_main(pdf_path)
+        controller_df = returned_tuple[1]
+        table_arr = returned_tuple[0].tolist()
+        table_arr = json.dumps(table_arr)
+        # table_arr = table_arr.encode()
+        print(table_arr)
+        json_df = controller_df.to_json(orient='records')
+        return {"success": True, "json_df": json_df, "points_array": table_arr}
+    # except:
+    #     return {"success": False}
+
+
+@app.get("/get_points_array")
+def get_points_array(json_df: str):
+    json_df = StringIO(json_df)
+    df: pd.DataFrame = pd.read_json(json_df)
+    k_table = KMeansTable(df)
+    table_arr = k_table.define_features().tolist()
+    table_arr = json.dumps(table_arr)
+    return {"success": True, "points_array": table_arr}
 
 def main():
     # query0 = sqlalchemy.insert(Authentication).values(Email='omrid3103@gmail.com', Username='Omri', Password='oiedvdi')
