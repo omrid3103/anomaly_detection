@@ -1,8 +1,8 @@
 import flet as ft
 import numpy as np
 import json
-from db_and_pdf_demo import kmc_controller
-from db_and_pdf_demo import kmeans_clustering
+# from db_and_pdf_demo import kmc_controller
+# from db_and_pdf_demo import kmeans_clustering
 import pandas as pd
 from typing import Union
 import requests
