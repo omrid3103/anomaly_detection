@@ -19,14 +19,14 @@ import random
 
 class KMCController:
 
-    def __init__(self, pdf_path: str = r"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\db_and_pdf_demo\client_data_table0.pdf"):
+    def __init__(self, pdf_path: str = r"..\file_saver\client_data_table0.pdf"):
         self.pdf_path = pdf_path
-        self.csv_path: Union[None, str] = r"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\db_and_pdf_demo\output0.csv"
+        self.csv_path: Union[None, str] = r"..\file_saver\output0.csv"
         self.df: Union[None, pd.DataFrame] = None
 
 
     def csv_file_name_generator(self, file_name: str):
-        directory_path = r"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\db_and_pdf_demo"
+        directory_path = r"..\file_saver"
         files = os.listdir(directory_path)
         flag = False
         while not flag:
@@ -78,7 +78,7 @@ class KMCController:
 
         csv_new_name = 'output0.csv'
         csv_new_name = self.csv_file_name_generator(csv_new_name)
-        csv_new_name = rf"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\db_and_pdf_demo\{csv_new_name}"
+        csv_new_name = rf"..\file_saver\{csv_new_name}"
 
         with open(csv_new_name, 'w', newline='', encoding='utf-8') as csvfile:
             csv_writer = csv.writer(csvfile)
@@ -205,7 +205,7 @@ class KMeansTable:
 # =================================================================================
 
 
-def kmc_controller_main(pdf_file_path: str = r"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\db_and_pdf_demo\client_data_table0.pdf") -> tuple[np.ndarray, pd.DataFrame]:
+def kmc_controller_main(pdf_file_path: str = r"..\file_saver\client_data_table0.pdf") -> tuple[np.ndarray, pd.DataFrame]:
 
     controller = KMCController(pdf_file_path)
     controller.pdf_to_csv()

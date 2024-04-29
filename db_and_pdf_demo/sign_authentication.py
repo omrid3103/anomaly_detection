@@ -173,7 +173,8 @@ async def upload_files(file_bytes: bytes):
     file_name = f'client_data_table0.{file_extension}'
     file_name = pdf_file_name_generator(file_name)
     # file_name = token_hex(10)
-    file_path = rf"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\db_and_pdf_demo\{file_name}"
+    file_path = rf"..\file_saver\{file_name}"
+    # file_path = rf"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\file_saver\{file_name}"
     with open(file_path, "wb") as f:
         content = await upload_file_object.read()
         f.write(content)
@@ -181,7 +182,8 @@ async def upload_files(file_bytes: bytes):
 
 
 def pdf_file_name_generator(file_name: str):
-    directory_path = r"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\db_and_pdf_demo"
+    directory_path = r"..\file_saver"
+    # directory_path = r"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\file_saver"
     files = os.listdir(directory_path)
     flag = False
     while not flag:
@@ -281,6 +283,7 @@ def kmc_server(
 def most_efficient_n_of_clusters(points_json: str, min_clusters_to_check: int = 2, max_clusters_to_check: int = 8) -> dict:
     # try:
     points_coordinates = np.array(json.loads(points_json))
+    print("1")
     silhouette_scores_list = []
     random_indices = np.random.choice(points_coordinates.shape[0], size=max_clusters_to_check, replace=False)
     centers_coordinates = points_coordinates[random_indices]
@@ -291,8 +294,10 @@ def most_efficient_n_of_clusters(points_json: str, min_clusters_to_check: int = 
             silhouette_scores_list.append(-1.0)
         else:
             silhouette_scores_list.append(silhouette_score_of_i)
+    print("2")
     silhouette_scores_array = np.array(silhouette_scores_list)
     most_efficient_n = int(silhouette_scores_array.argmax() + min_clusters_to_check)
+    print("3")
     return {"success": True, "n_clusters": most_efficient_n}
 
     # except:

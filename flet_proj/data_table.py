@@ -11,7 +11,7 @@ from io import StringIO
 
 class DataTable:
 
-    def __init__(self, page: ft.Page, url: str, info: dict, pdf_path: str = r"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\db_and_pdf_demo\client_data_table0.pdf", time_stamp: str = ""):
+    def __init__(self, page: ft.Page, url: str, info: dict, pdf_path: str = r"..\file_saver\client_data_table0.pdf", time_stamp: str = ""):
         self.page = page
         self.request_url = url
         self.username = info["username"]
@@ -22,7 +22,7 @@ class DataTable:
         if pdf_path != "":
             self.data = requests.get(f"{self.request_url}controller_actions", params={"pdf_path": pdf_path}).json()
         else:
-            self.data = requests.get(f"{self.request_url}controller_actions", params={"pdf_path": r"C:\Users\Sharon's PC\PycharmProjects\anomaly_detection\db_and_pdf_demo\client_data_table0.pdf"}).json()
+            self.data = requests.get(f"{self.request_url}controller_actions", params={"pdf_path": r"..\file_saver\client_data_table0.pdf"}).json()
 
         self.COLORS: dict[ft.colors, str] = {
                 "Yellow": ft.colors.YELLOW_200,
@@ -278,8 +278,9 @@ class DataTable:
 
 
     def kmc_table_definition(self, e) -> None:
-        payload = {"points_coordinates": json.dumps(self.points_coordinates.tolist()), "min_clusters_to_check": 4, "max_clusters_to_check": 9}
+        payload = {"points_json": json.dumps(self.points_coordinates.tolist()), "min_clusters_to_check": 4, "max_clusters_to_check": 9}
         returned_dict = requests.get(f"{self.request_url}most_efficient_n_of_clusters", params=payload).json()
+        print(returned_dict)
         if returned_dict["success"]:
             most_efficient_number_of_clusters = returned_dict["n_clusters"]
         else:
