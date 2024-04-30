@@ -1,3 +1,5 @@
+import time
+
 import flet as ft
 import requests
 from typing import Union
@@ -7,11 +9,10 @@ from io import StringIO
 
 
 class FormerData:
-    def __init__(self, page: ft.Page, url: str, info: dict):
+    def __init__(self, page: ft.Page, url: str, token: str):
         self.page: ft.Page = page
         self.request_url: str = url
-        self.username: str = info["username"]
-        self.password: str = info["password"]
+        self.token = token
 
         self.no_data_mag = ft.Text("You don't have any data saved...", visible=True,
                                    weight=ft.FontWeight("bold"), color=ft.colors.RED_400, size=30)
@@ -43,6 +44,8 @@ class FormerData:
 
             self.items.append(self.dropdown_row)
             self.items.append(self.table_button_row)
+        else:
+            self.token_expired()
 
         self.selected_table_df: Union[pd.DataFrame, None] = None
 
@@ -50,12 +53,18 @@ class FormerData:
 
 
 
+    def token_expired(self):
+        time.sleep(1)
+        self.page.go("/guest_home")
+
     def get_user_data(self) -> Union[list[dict], None]:
-        result = requests.get(f"{self.request_url}extract_user_data", params={"username": self.username, "password": self.password}).json()
+        result = requests.get(f"{self.request_url}extract_user_data", params={"token": self.token}).json()
         if result["success"]:
             if result["response"] == "Sending data":
                 return result["data"]
-        return None
+        else:
+            if result["response"] == "Token expired":
+                return None
 
     def generate_buttons(self) -> list[ft.Row]:
         buttons_list: list = [ft.Row([ft.Text("Click To See Your Tables:", color=ft.colors.BLACK, size=60)])]

@@ -11,11 +11,10 @@ from io import StringIO
 
 class DataTable:
 
-    def __init__(self, page: ft.Page, url: str, info: dict, pdf_path: str = r"..\file_saver\client_data_table0.pdf", time_stamp: str = ""):
+    def __init__(self, page: ft.Page, url: str, token, pdf_path: str = r"..\file_saver\client_data_table0.pdf", time_stamp: str = ""):
         self.page = page
         self.request_url = url
-        self.username = info["username"]
-        self.password = info["password"]
+        self.token = token
         self.table_time_stamp = time_stamp
         print(self.table_time_stamp)
         self.page.scroll = True
@@ -311,8 +310,7 @@ class DataTable:
 
     def save_table_in_db(self, e):
         payload = {
-            "username": self.username,
-            "password": self.password,
+            "token": self.token,
             "time_stamp": self.table_time_stamp,
             "json_df": self.df.to_json(orient='records')
         }
@@ -328,9 +326,13 @@ class DataTable:
             time.sleep(1)
             self.items.remove(self.save_row)
         else:
-            failed_save_msg = ft.Text("Something went wrong. Try again", visible=True,
-                                   weight=ft.FontWeight("bold"), color=ft.colors.RED_400, size=15)
-            self.save_row.controls.append(failed_save_msg)
+            if result["response"] != "Token expired":
+                failed_save_msg = ft.Text("Something went wrong. Try again", visible=True,
+                                       weight=ft.FontWeight("bold"), color=ft.colors.RED_400, size=15)
+                self.save_row.controls.append(failed_save_msg)
+            else:
+                time.sleep(1)
+                self.page.go("/guest_home")
         self.save_row.update()
         self.column.update()
         self.page.update()

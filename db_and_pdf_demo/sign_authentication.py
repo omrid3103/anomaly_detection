@@ -1,3 +1,5 @@
+import time
+
 import sqlalchemy
 from sqlalchemy.orm.session import sessionmaker
 import hashlib
@@ -15,6 +17,20 @@ import os
 from kmeans_clustering import *
 from kmc_controller import *
 from io import StringIO
+from cryptography.fernet import Fernet
+
+
+SECRET_KEY: bytes = b'M2UzYmRjYTg4MWZlMTRlYmRjMWU4YTMwYjVlYzg4MWQ='
+ACCESS_TOKEN_EXPIRE_SECONDS: float = 1800.0
+
+"""
+    Log-In:
+        auth: check
+            def encrypt_token(name: str, pass: str) -> str:
+                text = f"{name}|{pass}|{time.time()}"
+                f = Fernet(SECRET_KEY)
+                return f.encrypt(text) 
+"""
 
 
 app = FastAPI()
@@ -87,6 +103,21 @@ IP = '127.0.0.1'
 PORT = 5555
 
 
+def encrypt_token(username: str, pwd: str) -> str:
+    text = f"{username}|{pwd}|{time.time()}"
+    f = Fernet(SECRET_KEY)
+    return f.encrypt(text.encode()).decode()
+
+
+def decrypt_token(token: str) -> dict[str, str | bool]:
+    f = Fernet(SECRET_KEY)
+    decrypted_bytes = f.decrypt(token)
+    decrypted_text = decrypted_bytes.decode()
+    if time.time() - float(decrypted_text.split('|')[-1]) > ACCESS_TOKEN_EXPIRE_SECONDS:
+        return {"is_expired": True}
+    return {"is_expired": False, "token": decrypted_text}
+
+
 @app.get("/authenticate")
 def authenticate(email: str, username: str, password: str) -> dict:
     user_auth = Authentication.select().where(Authentication.columns.Username == username)
@@ -103,7 +134,8 @@ def authenticate(email: str, username: str, password: str) -> dict:
     if not any(data[-1] == hashed_password for data in user_auth):
         return {'response': "Not matching password!", "authentication": False}
 
-    return {'response': "Signing in...", "authentication": True}
+    token = encrypt_token(username=username, pwd=password)
+    return {'response': "Signing in...", "authentication": True, "token": token}
 
 
 """Completed sign-up func"""
@@ -131,32 +163,40 @@ def sign_up(email: str, username: str, password: str) -> dict:
         insert_query = sqlalchemy.insert(Authentication).values(Email=email, Username=username, Password=pass_hash)
         auth_session.execute(insert_query)
         auth_session.commit()
-        return {"response": "Signed up successfully!"}
+        token = encrypt_token(username=username, pwd=password)
+        return {"response": "Signed up successfully!", "token": token}
 
 
 @app.get("/update_information")
-def update_information(old_username: str, new_username: str, new_email: str, new_password: str) -> dict:
+def update_information(token: str, new_username: str, new_email: str, new_password: str) -> dict:
+    token_decrypted = decrypt_token(token)
+    if token_decrypted["is_expired"]:
+        return {"success": False, "response": "Token expired"}
+
+    old_username = token_decrypted["token"].split('|')[0]
+    password = token_decrypted["token"].split('|')[1]
+
     user_auth = Authentication.select().where(Authentication.columns.Username == old_username)
     user_auth = auth_session.execute(user_auth).fetchall()
     username_query: bool = user_auth == []
     if username_query:
-        return {"response": "Username doesn't exist!"}
+        return {"success": False, "response": "Username doesn't exist!"}
     if not validate_email(new_email):
-        return {"response": "Invalid email address!"}
+        return {"success": False, "response": "Invalid email address!"}
     email_auth = Authentication.select().where(Authentication.columns.Email == new_email)
     email_auth = auth_session.execute(email_auth).fetchall()
     email_query: bool = email_auth == []
     if not email_query:
-        return {"response": "Account with the same email exists!"}
+        return {"success": False, "response": "Account with the same email exists!"}
         # add in flet a way to allow rewriting the accounts details and rerunning the function
     if new_password == "" or new_password == " ":
-        return {"response": "Invalid password!"}
+        return {"success": False, "response": "Invalid password!"}
     else:
         pass_hash = hashlib.sha256(new_password.encode()).hexdigest()
         update_query = sqlalchemy.update(Authentication).where(Authentication.columns.Username == old_username).values(Email=new_email, Username=new_username, Password=pass_hash)
         auth_session.execute(update_query)
         auth_session.commit()
-        return {"response": "Details Updated Successfully!"}
+        return {"success": True, "response": "Details Updated Successfully!"}
 
 
 @app.post("/upload_files")
@@ -199,7 +239,14 @@ def pdf_file_name_generator(file_name: str):
 
 
 @app.post("/save_table")
-async def save_table(username: str, password: str, time_stamp: str, json_df: str):
+async def save_table(token: str, time_stamp: str, json_df: str):
+    token_decrypted = decrypt_token(token)
+    if token_decrypted["is_expired"]:
+        return {"success": False, "response": "Token expired"}
+
+    username = token_decrypted["token"].split('|')[0]
+    password = token_decrypted["token"].split('|')[1]
+
     username_auth = Authentication.select().where(Authentication.columns.Username == username)
     username_auth = auth_session.execute(username_auth).fetchall()
     pass_hash = hashlib.sha256(password.encode()).hexdigest()
@@ -217,7 +264,14 @@ async def save_table(username: str, password: str, time_stamp: str, json_df: str
 
 
 @app.get("/extract_user_data")
-async def extract_user_data(username: str, password: str):
+async def extract_user_data(token: str):
+    token_decrypted = decrypt_token(token)
+    if token_decrypted["is_expired"]:
+        return {"success": False, "response": "Token expired"}
+
+    username = token_decrypted["token"].split('|')[0]
+    password = token_decrypted["token"].split('|')[1]
+
     username_auth = Authentication.select().where(Authentication.columns.Username == username)
     username_auth = auth_session.execute(username_auth).fetchall()
     pass_hash = hashlib.sha256(password.encode()).hexdigest()

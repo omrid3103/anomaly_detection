@@ -12,13 +12,13 @@ import pandas as pd
 
 
 class UserDetails:
-    def __init__(self, username: str, email: str, password: str):
-        self.info = {"username": username, "email": email, "password": password}
+    def __init__(self, username: str, email: str, password: str, token: str):
+        self.info = {"username": username, "email": email, "password": password, "token": token}
 
-    def update_info(self, username: str, email: str, password: str):
-        self.info["username"] = username
-        self.info["email"] = email
-        self.info["password"] = password
+    # def update_info(self, username: str, email: str, password: str):
+    #     self.info["username"] = username
+    #     self.info["email"] = email
+    #     self.info["password"] = password
 
 
 class DataKeeper:
@@ -33,7 +33,7 @@ def main(page: ft.Page, url: str):
     page.title = "Routes Example"
     page.scroll = ft.ScrollMode.ALWAYS
 
-    user_information = UserDetails("", "", "")
+    user_information = UserDetails("", "", "", "")
     df_data_keeper = DataKeeper()
     guest_appbar = GuestAppBar(page).my_appbar
     guest_menu = GuestMenu(page).guest_menu
@@ -47,13 +47,15 @@ def main(page: ft.Page, url: str):
 
 
 
-    def insert_user_information(username: str, email: str, password: str):
+    def insert_user_information(username: str, email: str, password: str, token: str):
         if username != "":
             user_information.info["username"] = username
         if email != "":
             user_information.info["email"] = email
         if password != "":
             user_information.info["password"] = password
+        if token != "":
+            user_information.info["token"] = token
 
     def reset_information():
         user_information.info["username"] = ""
@@ -97,9 +99,9 @@ def main(page: ft.Page, url: str):
                     ],
                 )
             )
-        insert_user_information(sign_up.details["username"], sign_up.details["email"], sign_up.details["password"])
-        insert_user_information(sign_in.details["username"], sign_in.details["email"], sign_in.details["password"])
-        update_details = UpdateDetails(page, user_information.info["username"], user_information.info["email"], user_information.info["password"], url)
+        insert_user_information(sign_up.details["username"], sign_up.details["email"], sign_up.details["password"], sign_up.details["token"])
+        insert_user_information(sign_in.details["username"], sign_in.details["email"], sign_in.details["password"], sign_in.details["token"])
+        update_details = UpdateDetails(page, user_information.info["username"], user_information.info["email"], user_information.info["password"], user_information.info["token"], url)
 
 
         if page.route == "/user_home":
@@ -126,8 +128,8 @@ def main(page: ft.Page, url: str):
                     ],
                 )
             )
-        if user_information.info["email"] != update_details.details["email"] or user_information.info["password"] != update_details.details["password"]:
-            user_information.update_info(update_details.details["username"], update_details.details["email"], update_details.details["password"])
+        # if user_information.info["email"] != update_details.details["email"] or user_information.info["password"] != update_details.details["password"]:
+        #     user_information.update_info(update_details.details["username"], update_details.details["email"], update_details.details["password"])
         if page.route == "/client_kmc":
             page.views.append(
                 ft.View(
@@ -142,9 +144,9 @@ def main(page: ft.Page, url: str):
 
         if page.route == "/data_table":
             if file_picker.table_time_stamp == "":
-                data_table = DataTable(page, url, user_information.info, file_picker.file_name).column
+                data_table = DataTable(page, url, user_information.info["token"], file_picker.file_name).column
             else:
-                data_table = DataTable(page, url, user_information.info, file_picker.file_name, file_picker.table_time_stamp).column
+                data_table = DataTable(page, url, user_information.info["token"], file_picker.file_name, file_picker.table_time_stamp).column
             page.views.append(
                 ft.View(
                     "data_table",
@@ -158,7 +160,7 @@ def main(page: ft.Page, url: str):
 
         if page.route == "/former_data":
             global former_data
-            former_data = FormerData(page, url, user_information.info)
+            former_data = FormerData(page, url, user_information.info["token"])
             page.views.append(
                 ft.View(
                     "former_data",

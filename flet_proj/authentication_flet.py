@@ -6,7 +6,8 @@ from typing import Union
 
 class SignUp:
     def __init__(self, page: ft.Page, url: str):
-        self.details: dict[str, str] = {"username": "", "email": "", "password": ""}
+        self.details: dict[str, str] = {"username": "", "email": "", "password": "", "token": ""}
+        self.token: str = ""
         self.page = page
         self.request_url = url
         self.username_tb = ft.TextField(label="Username", max_lines=1, width=280, hint_text="Enter username here")
@@ -55,6 +56,7 @@ class SignUp:
             self.details["username"] = self.username_tb.value
             self.details["email"] = self.email_tb.value
             self.details["password"] = self.password_tb.value
+            self.details["token"] = result["token"]
             time.sleep(1)
             self.page.go('/user_home')
 
@@ -69,7 +71,7 @@ class SignUp:
 
 class SignIn:
     def __init__(self, page, url):
-        self.details: dict[str, str] = {"username": "", "email": "", "password": ""}
+        self.details: dict[str, str] = {"username": "", "email": "", "password": "", "token": ""}
         self.page = page
         self.request_url = url
         self.username_tb = ft.TextField(label="Username", max_lines=1, width=280, hint_text="Enter username here", value="Sxd3306")
@@ -144,6 +146,7 @@ class SignIn:
                 self.details["username"] = self.username_tb.value
                 self.details["email"] = self.email_tb.value
                 self.details["password"] = self.password_tb.value
+                self.details["token"] = result["token"]
                 time.sleep(1)
                 self.page.go('/user_home')
         self.page.update()
@@ -159,8 +162,8 @@ class SignIn:
 
 
 class UpdateDetails:
-    def __init__(self, page: ft.Page, username: str, email: str, password: str, url):
-        self.details: dict[str, str] = {"username": username, "email": email, "password": password}
+    def __init__(self, page: ft.Page, username: str, email: str, password: str, token: str, url: str):
+        self.details: dict[str, str] = {"username": username, "email": email, "password": password, "token": token}
         self.page = page
         self.request_url = url
         self.title_text = ft.Text("Update Your Information, " + self.details["username"] + "")
@@ -180,10 +183,13 @@ class UpdateDetails:
             self.page.update()
         else:
             result = requests.get(f"{self.request_url}update_information",
-                                  params={"old_username": self.details["username"], "new_username": self.username_tb.value, "new_email": self.email_tb.value,
+                                  params={"token": self.details["token"], "new_username": self.username_tb.value, "new_email": self.email_tb.value,
                                           "new_password": self.password_tb.value}).json()
             response = result["response"]
             print(response)
+            if response == "Token expired":
+                time.sleep(1)
+                self.page.go("/guest_home")
             if response == "Invalid email address!" or response == "Account with the same email exists!":
                 self.email_tb.border_color = ft.colors.RED_400
                 self.email_tb.value = self.details["email"]

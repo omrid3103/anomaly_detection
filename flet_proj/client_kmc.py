@@ -52,8 +52,8 @@ class FilePicker:
 
         self.end_date_picker = ft.DatePicker(
             on_change=self.end_change_date,
-            first_date=datetime.datetime(2023, 10, 1),
-            last_date=datetime.datetime(2024, 10, 1),
+            first_date=datetime.datetime(2006, 1, 1),
+            last_date=datetime.datetime(2026, 1, 1),
         )
         page.overlay.append(self.end_date_picker)
 
@@ -138,6 +138,7 @@ class FilePicker:
             self.upload_button.visible = True
             self.upload_row.visible = True
             self.upload_row.update()
+            self.table_time_stamp = f"{self.start_date_value} - {self.end_date_value}"
         self.content.update()
         self.page.update()
 
