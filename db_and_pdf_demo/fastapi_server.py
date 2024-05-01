@@ -1,16 +1,11 @@
 import time
-
 import sqlalchemy
 from sqlalchemy.orm.session import sessionmaker
 import hashlib
 import uvicorn
 from fastapi import FastAPI, UploadFile, File
-import multipart
-# import jose
-from passlib.hash import bcrypt
 from validate_email import validate_email
 import json
-from secrets import token_hex
 import tempfile
 import pandas as pd
 import os
