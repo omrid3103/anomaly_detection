@@ -85,6 +85,15 @@ class FilePicker:
         self.content = ft.Column(spacing=20, controls=self.items)
 
     def pick_files_result(self, e: ft.FilePickerResultEvent):
+        """
+        an on_click def that opens the user's directory for hime, allows him to pick a file and
+        then it reads the file and saves the bytes data it in self.saved_file
+        Args:
+            e:
+
+        Returns:
+            None
+        """
         if e.files:
             with open(e.files[0].path, "rb") as file:
                 saved_file = file.read()
