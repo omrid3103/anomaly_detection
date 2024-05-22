@@ -205,19 +205,19 @@ class KMeansTable:
 # =================================================================================
 
 
-def kmc_controller_main(pdf_file_path: str = r"..\file_saver\client_data_table0.pdf") -> tuple[np.ndarray, pd.DataFrame]:
+def kmc_controller_main(file_df: pd.DataFrame) -> np.ndarray:
 
-    controller = KMCController(pdf_file_path)
-    controller.pdf_to_csv()
-    controller.csv_to_dataframe()
-    print(controller.df)
-    print(controller.csv_path)
-    k_table = KMeansTable(controller.df)
+    # controller = KMCController(pdf_file_path)
+    # controller.pdf_to_csv()
+    # controller.csv_to_dataframe()
+    # print(controller.df)
+    # print(controller.csv_path)
+    k_table = KMeansTable(file_df)
     table_arr = k_table.define_features()
     # for i, r in enumerate(table_arr):
     #     print(i, r)
-    return table_arr, controller.df
+    return table_arr
 
 
 if __name__ == "__main__":
-    print(kmc_controller_main()[1])
+    print(kmc_controller_main())

@@ -1,15 +1,18 @@
 import flet as ft
+import pandas as pd
 import requests
 from typing import Union
 import time
 import datetime
+from io import StringIO
 
 
 class FilePicker:
 
-    def __init__(self, page: ft.Page, url: str):
+    def __init__(self, page: ft.Page, url: str, token):
         self.page: ft.Page = page
         self.request_url = url
+        self.token = token
         self.confirmation = ft.Text("Your file has been uploaded", color=ft.colors.GREEN_200, weight=ft.FontWeight("bold"))
         self.table_welcoming_text_button = ft.TextButton(
             content=ft.Text("Your credit table is ready for showing! Show it", color=ft.colors.BLUE_400),
@@ -17,7 +20,9 @@ class FilePicker:
             on_click=self.text_button_clicked
         )
         self.saved_file: Union[None, bytes] = None
-        self.file_name: str = ""
+        self.f_name: str = ""
+        # self.file_name: str = ""
+        self.file_df: Union[None, pd.DataFrame] = None
         self.pick_files_dialog = ft.FilePicker(on_result=self.pick_files_result)
 
         self.page.overlay.append(self.pick_files_dialog)
@@ -98,6 +103,7 @@ class FilePicker:
             with open(e.files[0].path, "rb") as file:
                 saved_file = file.read()
                 self.saved_file = saved_file
+                self.f_name = e.files[0].name
                 print("OK", e.files[0].name)
                 if self.saved_file is not None:
                     self.buttons_row.update()
@@ -107,17 +113,22 @@ class FilePicker:
             print("No files selected or cancelled.")
 
     def upload_file(self, e):
-        result = requests.post(f"{self.request_url}upload_files", params={"file_bytes": self.saved_file}).json()
+        print(self.token)
+        print(self.saved_file)
+        print(self.f_name)
+        result = requests.post(f"{self.request_url}upload_files", params={"token": self.token, "file_bytes": self.saved_file, "file_name": self.f_name}).json()
         response = result["success"]
-        print(result["file_path"])
         if response:
-            self.file_name = result["file_path"]
+            json_buffer = StringIO(result["file_df"])
+            self.file_df = pd.read_json(json_buffer)
             self.confirmation_row.visible = True
             self.confirmation_row.update()
             self.table_redirection_row.visible = True
             self.table_redirection_row.update()
             self.content.update()
             self.page.update()
+        else:
+            self.page.go("/guest_home")
 
     def text_button_clicked(self, e):
         self.table_redirection_row.visible = False

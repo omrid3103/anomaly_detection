@@ -42,7 +42,7 @@ def main(page: ft.Page, url: str):
     table_appbar = TableAppBar(page).my_appbar
     sign_up = SignUp(page, url)
     sign_in = SignIn(page, url)
-    file_picker = FilePicker(page, url)
+    file_picker = FilePicker(page, url, "")
     former_data: Union[FormerData, None] = None
 
 
@@ -102,7 +102,8 @@ def main(page: ft.Page, url: str):
         insert_user_information(sign_up.details["username"], sign_up.details["email"], sign_up.details["password"], sign_up.details["token"])
         insert_user_information(sign_in.details["username"], sign_in.details["email"], sign_in.details["password"], sign_in.details["token"])
         update_details = UpdateDetails(page, user_information.info["username"], user_information.info["email"], user_information.info["password"], user_information.info["token"], url)
-
+        if file_picker.token == "":
+            file_picker.token = user_information.info["token"]
 
         if page.route == "/user_home":
             page.views.append(
@@ -144,9 +145,9 @@ def main(page: ft.Page, url: str):
 
         if page.route == "/data_table":
             if file_picker.table_time_stamp == "":
-                data_table = DataTable(page, url, user_information.info["token"], file_picker.file_name).column
+                data_table = DataTable(page, url, user_information.info["token"], file_picker.file_df).column
             else:
-                data_table = DataTable(page, url, user_information.info["token"], file_picker.file_name, file_picker.table_time_stamp).column
+                data_table = DataTable(page, url, user_information.info["token"], file_picker.file_df, file_picker.table_time_stamp).column
             page.views.append(
                 ft.View(
                     "data_table",

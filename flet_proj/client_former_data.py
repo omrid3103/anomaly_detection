@@ -17,7 +17,8 @@ class FormerData:
         self.no_data_mag = ft.Text("You don't have any data saved...", visible=True,
                                    weight=ft.FontWeight("bold"), color=ft.colors.RED_400, size=30)
 
-        self.data: Union[list[dict], None] = self.get_user_data()
+        tuple_data = self.get_user_data()
+        self.data: Union[list[dict], None] = tuple_data[0]
         self.num_of_tables: Union[int, None] = None
         self.dataframes_list: list[pd.DataFrame] = []
         self.items: list = [self.no_data_mag]
@@ -45,7 +46,10 @@ class FormerData:
             self.items.append(self.dropdown_row)
             self.items.append(self.table_button_row)
         else:
-            self.token_expired()
+            if tuple_data[1] == "No":
+                self.token_expired()
+            else:
+                pass
 
         self.selected_table_df: Union[pd.DataFrame, None] = None
 
@@ -57,14 +61,16 @@ class FormerData:
         time.sleep(1)
         self.page.go("/guest_home")
 
-    def get_user_data(self) -> Union[list[dict], None]:
+    def get_user_data(self) -> tuple[Union[list[dict], None], str]:
         result = requests.get(f"{self.request_url}extract_user_data", params={"token": self.token}).json()
         if result["success"]:
             if result["response"] == "Sending data":
-                return result["data"]
+                return result["data"], "Yes"
+            elif result["response"] == "You don't have any data saved...":
+                return None, "Yes"
         else:
             if result["response"] == "Token expired":
-                return None
+                return None, "No"
 
     def generate_buttons(self) -> list[ft.Row]:
         buttons_list: list = [ft.Row([ft.Text("Click To See Your Tables:", color=ft.colors.BLACK, size=60)])]

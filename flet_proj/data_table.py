@@ -11,17 +11,15 @@ from io import StringIO
 
 class DataTable:
 
-    def __init__(self, page: ft.Page, url: str, token, pdf_path: str = r"..\file_saver\client_data_table0.pdf", time_stamp: str = ""):
+    def __init__(self, page: ft.Page, url: str, token, file_df: pd.DataFrame, time_stamp: str = ""):
         self.page = page
         self.request_url = url
         self.token = token
         self.table_time_stamp = time_stamp
+        self.file_df = file_df
         print(self.table_time_stamp)
         self.page.scroll = True
-        if pdf_path != "":
-            self.data = requests.get(f"{self.request_url}controller_actions", params={"pdf_path": pdf_path}).json()
-        else:
-            self.data = requests.get(f"{self.request_url}controller_actions", params={"pdf_path": r"..\file_saver\client_data_table0.pdf"}).json()
+        self.data = requests.get(f"{self.request_url}controller_actions", params={"json_df": self.file_df.to_json(orient='records')}).json()
 
         self.COLORS: dict[ft.colors, str] = {
                 "Yellow": ft.colors.YELLOW_200,
@@ -35,16 +33,14 @@ class DataTable:
                 "Cyan": ft.colors.CYAN_50
         }
 
-        self.df = StringIO(self.data["json_df"])
-        self.df: pd.DataFrame = pd.read_json(self.df)
 
         # self.points_coordinates = self.data["points_array"].decode()
         self.points_coordinates = json.loads(self.data["points_array"])
         self.points_coordinates = np.array(self.points_coordinates)
 
-        self.columns_names_list = self.df.columns.tolist()
-        self.num_rows: int = self.df.shape[0]
-        self.num_cells_in_each_row: int = len(self.df.iloc[0].tolist())
+        self.columns_names_list = self.file_df.columns.tolist()
+        self.num_rows: int = self.file_df.shape[0]
+        self.num_cells_in_each_row: int = len(self.file_df.iloc[0].tolist())
         self.row_colors: list[ft.colors] = []
 
 
@@ -131,7 +127,7 @@ class DataTable:
         cells_list: list[ft.DataCell] = []
 
         for i in range(self.num_rows):
-            row_i_information = self.df.iloc[i].tolist()
+            row_i_information = self.file_df.iloc[i].tolist()
             for j in range(self.num_cells_in_each_row):
                 cells_list.append(
                     ft.DataCell(ft.Text(f"{str(row_i_information[j])}", text_align=ft.TextAlign.CENTER))
@@ -173,7 +169,7 @@ class DataTable:
     def search_dropdown_options_generation(self) -> list[ft.dropdown.Option]:
         options_list = []
         for i in range(len(self.columns_names_list)):
-            if isinstance(self.df.iloc[0, i], str):
+            if isinstance(self.file_df.iloc[0, i], str):
                 options_list.append(
                     ft.dropdown.Option(f"{self.columns_names_list[i]}")
                 )
@@ -220,7 +216,7 @@ class DataTable:
         search_name = self.search_field.value
         dropdown_value = self.dropdown_obj.value
 
-        my_filtered_df = self.df[self.df[self.columns_names_list[self.columns_names_list.index(dropdown_value)]].str.contains(search_name)]
+        my_filtered_df = self.file_df[self.file_df[self.columns_names_list[self.columns_names_list.index(dropdown_value)]].str.contains(search_name)]
         my_filter = my_filtered_df.astype(str).to_dict(orient='records')
         self.data_table.rows = []
 
@@ -312,7 +308,7 @@ class DataTable:
         payload = {
             "token": self.token,
             "time_stamp": self.table_time_stamp,
-            "json_df": self.df.to_json(orient='records')
+            "json_df": self.file_df.to_json(orient='records')
         }
         result = requests.post(f"{self.request_url}save_table", params=payload).json()
         print(result)
