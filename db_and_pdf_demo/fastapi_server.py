@@ -3,7 +3,7 @@ import sqlalchemy
 from sqlalchemy.orm.session import sessionmaker
 import hashlib
 import uvicorn
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, Request
 from validate_email import validate_email
 import json
 import tempfile
@@ -15,6 +15,9 @@ import io
 from io import StringIO
 from cryptography.fernet import Fernet
 import pdfplumber
+from slowapi.errors import RateLimitExceeded
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
 
 
 
@@ -30,8 +33,11 @@ ACCESS_TOKEN_EXPIRE_SECONDS: float = 1800.0
                 return f.encrypt(text) 
 """
 
-
+limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
+
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 
 # ==========================================================================================================================
 
@@ -141,7 +147,8 @@ def decrypt_token(token: str) -> dict[str, str | bool]:
 
 
 @app.get("/authenticate")
-def authenticate(email: str, username: str, password: str) -> dict:
+@limiter.limit("100/minute")
+def authenticate(request: Request, email: str, username: str, password: str) -> dict:
     user_auth = Authentication.select().where(Authentication.columns.Username == username)
     user_auth = auth_session.execute(user_auth).fetchall()
     user_not_exist: bool = user_auth == []

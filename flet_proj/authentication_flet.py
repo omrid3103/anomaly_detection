@@ -10,9 +10,9 @@ class SignUp:
         self.token: str = ""
         self.page = page
         self.request_url = url
-        self.username_tb = ft.TextField(label="Username", max_lines=1, width=280, hint_text="Enter username here")
+        self.username_tb = ft.TextField(label="Username", max_lines=1, width=280, hint_text="Enter username here", max_length=16)
         self.email_tb = ft.TextField(label="Email", max_lines=1, width=280, hint_text="Enter email here", keyboard_type=ft.KeyboardType.EMAIL)
-        self.password_tb = ft.TextField(label="Password", password=True, can_reveal_password=True, max_lines=1, width=280, hint_text="Enter password here")
+        self.password_tb = ft.TextField(label="Password", password=True, can_reveal_password=True, max_lines=1, width=280, hint_text="Enter password here", max_length=16)
         self.submit_button = ft.ElevatedButton(text="Sign Me Up!", color=ft.colors.BLUE_300, on_click=self.sign_up_button_clicked)
         self.items = [self.username_tb, self.email_tb, self.password_tb, self.submit_button]
         self.column = ft.Column(spacing=20, controls=self.items)
@@ -114,41 +114,45 @@ class SignIn:
             self.password_tb.label = "Password"
         if flag:
             result = requests.get(f"{self.request_url}authenticate",
-                                  params={"email": self.email_tb.value, "username": self.username_tb.value, "password": self.password_tb.value}).json()
-            response = result["response"]
-            print(response)
-            if response == "Username doesnt exist!":
-                self.username_tb.border_color = ft.colors.RED_400
-                self.username_tb.value = ''
-                self.username_tb.label = response
-                self.username_tb.hint_text = "Enter new username here"
+                                  params={"email": self.email_tb.value, "username": self.username_tb.value, "password": self.password_tb.value})
+            if result.status_code == 429:
+                pass
             else:
-                self.username_tb.border_color = ft.colors.SURFACE_VARIANT
-                self.username_tb.label = "Username"
-            if response == "Invalid email!":
-                self.email_tb.border_color = ft.colors.RED_400
-                self.email_tb.value = ''
-                self.email_tb.label = response
-                self.email_tb.hint_text = "Enter new email here"
-            else:
-                self.email_tb.border_color = ft.colors.SURFACE_VARIANT
-                self.email_tb.label = "Email"
-            if response == "Not matching password!":
-                self.password_tb.border_color = ft.colors.RED_400
-                self.password_tb.value = ''
-                self.password_tb.label = "Not matching password"
-                self.password_tb.hint_text = "Enter new password here"
-                flag = False
-            else:
-                self.password_tb.border_color = ft.colors.SURFACE_VARIANT
-                self.password_tb.label = "Password"
-            if response == "Signing in...":
-                self.details["username"] = self.username_tb.value
-                self.details["email"] = self.email_tb.value
-                self.details["password"] = self.password_tb.value
-                self.details["token"] = result["token"]
-                time.sleep(1)
-                self.page.go('/user_home')
+                result = result.json()
+                response = result["response"]
+                print(response)
+                if response == "Username doesnt exist!":
+                    self.username_tb.border_color = ft.colors.RED_400
+                    self.username_tb.value = ''
+                    self.username_tb.label = response
+                    self.username_tb.hint_text = "Enter new username here"
+                else:
+                    self.username_tb.border_color = ft.colors.SURFACE_VARIANT
+                    self.username_tb.label = "Username"
+                if response == "Invalid email!":
+                    self.email_tb.border_color = ft.colors.RED_400
+                    self.email_tb.value = ''
+                    self.email_tb.label = response
+                    self.email_tb.hint_text = "Enter new email here"
+                else:
+                    self.email_tb.border_color = ft.colors.SURFACE_VARIANT
+                    self.email_tb.label = "Email"
+                if response == "Not matching password!":
+                    self.password_tb.border_color = ft.colors.RED_400
+                    self.password_tb.value = ''
+                    self.password_tb.label = "Not matching password"
+                    self.password_tb.hint_text = "Enter new password here"
+                    flag = False
+                else:
+                    self.password_tb.border_color = ft.colors.SURFACE_VARIANT
+                    self.password_tb.label = "Password"
+                if response == "Signing in...":
+                    self.details["username"] = self.username_tb.value
+                    self.details["email"] = self.email_tb.value
+                    self.details["password"] = self.password_tb.value
+                    self.details["token"] = result["token"]
+                    time.sleep(1)
+                    self.page.go('/user_home')
         self.page.update()
 
 
@@ -170,7 +174,7 @@ class UpdateDetails:
         self.alert_message = ft.Text("No Detail Has Been Changed", color=ft.colors.RED_400)
         self.username_tb = ft.TextField(label="Username", max_lines=1, width=280, hint_text="Enter username here", value=self.details["username"], disabled=True)
         self.email_tb = ft.TextField(label="Email", max_lines=1, width=280, hint_text="Enter email here", keyboard_type=ft.KeyboardType.EMAIL, value=self.details["email"])
-        self.password_tb = ft.TextField(label="Password", password=True, can_reveal_password=True, max_lines=1, width=280, value=self.details["password"])
+        self.password_tb = ft.TextField(label="Password", password=True, can_reveal_password=True, max_lines=1, width=280, value=self.details["password"], max_length=16)
         self.submit_button = ft.ElevatedButton(text="Update Details!", color=ft.colors.BLUE_300, on_click=self.update_details)
         self.items = [self.title_text, self.username_tb, self.email_tb, self.password_tb, self.submit_button]
         self.column = ft.Column(spacing=20, controls=self.items)
