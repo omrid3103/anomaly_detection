@@ -19,6 +19,16 @@ class FilePicker:
             on_hover=False,
             on_click=self.text_button_clicked
         )
+        self.alert_dlg = ft.AlertDialog(
+            modal=True,
+            title=ft.Text("Server Error"),
+            content=ft.Text("Too busy at the moment. Please try again in a minute."),
+            actions=[
+                ft.TextButton("Close", on_click=self.close_dlg)
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+            on_dismiss=lambda e: print("Modal dialog dismissed!"),
+        )
         self.saved_file: Union[None, bytes] = None
         self.f_name: str = ""
         # self.file_name: str = ""
@@ -116,19 +126,23 @@ class FilePicker:
         print(self.token)
         print(self.saved_file)
         print(self.f_name)
-        result = requests.post(f"{self.request_url}upload_files", params={"token": self.token, "file_bytes": self.saved_file, "file_name": self.f_name}).json()
-        response = result["success"]
-        if response:
-            json_buffer = StringIO(result["file_df"])
-            self.file_df = pd.read_json(json_buffer)
-            self.confirmation_row.visible = True
-            self.confirmation_row.update()
-            self.table_redirection_row.visible = True
-            self.table_redirection_row.update()
-            self.content.update()
-            self.page.update()
+        result = requests.post(f"{self.request_url}upload_files", params={"token": self.token, "file_bytes": self.saved_file, "file_name": self.f_name})
+        if result.status_code == 429:
+            self.open_dlg()
         else:
-            self.page.go("/guest_home")
+            result = result.json()
+            response = result["success"]
+            if response:
+                json_buffer = StringIO(result["file_df"])
+                self.file_df = pd.read_json(json_buffer)
+                self.confirmation_row.visible = True
+                self.confirmation_row.update()
+                self.table_redirection_row.visible = True
+                self.table_redirection_row.update()
+                self.content.update()
+                self.page.update()
+            else:
+                self.page.go("/guest_home")
 
     def text_button_clicked(self, e):
         self.table_redirection_row.visible = False
@@ -181,6 +195,14 @@ class FilePicker:
         self.content.update()
         self.page.update()
 
+    def open_dlg(self,):
+        self.page.dialog = self.alert_dlg
+        self.alert_dlg.open = True
+        self.page.update()
+
+    def close_dlg(self, e):
+        self.alert_dlg.open = False
+        self.page.update()
 
 
 

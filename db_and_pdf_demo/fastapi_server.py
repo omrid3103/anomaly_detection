@@ -171,7 +171,8 @@ def authenticate(request: Request, email: str, username: str, password: str) -> 
 
 
 @app.get("/sign_up")
-def sign_up(email: str, username: str, password: str) -> dict:
+@limiter.limit("100/minute")
+def sign_up(request: Request, email: str, username: str, password: str) -> dict:
     user_auth = Authentication.select().where(Authentication.columns.Username == username)
     user_auth = auth_session.execute(user_auth).fetchall()
     username_query: bool = user_auth == []
@@ -197,7 +198,8 @@ def sign_up(email: str, username: str, password: str) -> dict:
 
 
 @app.get("/update_information")
-def update_information(token: str, new_username: str, new_email: str, new_password: str) -> dict:
+@limiter.limit("100/minute")
+def update_information(request: Request, token: str, new_username: str, new_email: str, new_password: str) -> dict:
     token_decrypted = decrypt_token(token)
     if token_decrypted["is_expired"]:
         return {"success": False, "response": "Token expired"}
@@ -229,7 +231,8 @@ def update_information(token: str, new_username: str, new_email: str, new_passwo
 
 
 @app.post("/upload_files")
-async def upload_files(token: str, file_bytes: str, file_name: str):
+@limiter.limit("100/minute")
+async def upload_files(request: Request, token: str, file_bytes: str, file_name: str):
     token_decrypted = decrypt_token(token)
     if token_decrypted["is_expired"]:
         return {"success": False, "response": "Token expired"}

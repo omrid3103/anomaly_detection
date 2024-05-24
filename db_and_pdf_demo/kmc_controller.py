@@ -16,7 +16,7 @@ import random
 # ***************************   KMeansController   ********************************
 # =================================================================================
 
-
+"""
 class KMCController:
 
     def __init__(self, pdf_path: str = r"..\file_saver\client_data_table0.pdf"):
@@ -100,7 +100,7 @@ class KMCController:
     def csv_to_dataframe(self) -> None:
         df = pd.read_csv(self.csv_path)
         self.df = df
-
+"""
 
 
 # =================================================================================

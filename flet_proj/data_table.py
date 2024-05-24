@@ -19,6 +19,15 @@ class DataTable:
         self.file_df = file_df
         print(self.table_time_stamp)
         self.page.scroll = True
+        self.alert_dlg = ft.AlertDialog(
+            modal=True,
+            title=ft.Text("Timeout Error"),
+            content=ft.Text("You are connected for too long. You will now be disconnected."),
+            actions=[
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+            on_dismiss=lambda e: print("Modal dialog dismissed!"),
+        )
         self.data = requests.get(f"{self.request_url}controller_actions", params={"json_df": self.file_df.to_json(orient='records')}).json()
 
         self.COLORS: dict[ft.colors, str] = {
@@ -313,21 +322,20 @@ class DataTable:
         result = requests.post(f"{self.request_url}save_table", params=payload).json()
         print(result)
         if result["success"]:
-            successful_save_msg = ft.Text("Table has been saved!", visible=True,
-                                   weight=ft.FontWeight("bold"), color=ft.colors.GREEN_400, size=15)
-            self.save_row.controls.append(successful_save_msg)
-            self.save_row.update()
-            self.column.update()
-            self.page.update()
-            time.sleep(1)
+            self.alert_dlg.title = ft.Text("Success")
+            self.alert_dlg.content = ft.Text("Table has been saved.")
+            self.alert_dlg.actions = [ft.TextButton("Close", on_click=self.close_dlg)]
+            self.open_dlg()
             self.items.remove(self.save_row)
         else:
             if result["response"] != "Token expired":
-                failed_save_msg = ft.Text("Something went wrong. Try again", visible=True,
-                                       weight=ft.FontWeight("bold"), color=ft.colors.RED_400, size=15)
-                self.save_row.controls.append(failed_save_msg)
+                self.alert_dlg.title = ft.Text("Error")
+                self.alert_dlg.content = ft.Text("Something went wrong. Try again.")
+                self.alert_dlg.actions = [ft.TextButton("Close", on_click=self.close_dlg)]
+                self.open_dlg()
             else:
-                time.sleep(1)
+                self.open_dlg()
+                time.sleep(4)
                 self.page.go("/guest_home")
         self.save_row.update()
         self.column.update()
@@ -335,6 +343,15 @@ class DataTable:
         # def save_table(username: str, password: str, json_df: dict, time_stamp: str):
         # return {"success": False, "response": "Not Matching Password"}
 
+
+    def open_dlg(self,):
+        self.page.dialog = self.alert_dlg
+        self.alert_dlg.open = True
+        self.page.update()
+
+    def close_dlg(self, e):
+        self.alert_dlg.open = False
+        self.page.update()
 
 
     #🦾🫡🪖
