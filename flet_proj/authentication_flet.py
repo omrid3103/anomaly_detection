@@ -18,10 +18,10 @@ class SignUp:
                 ft.TextButton("Close", on_click=self.close_dlg)
             ],
             actions_alignment=ft.MainAxisAlignment.END,
-            on_dismiss=lambda e: print("Modal dialog dismissed!"),
+            # on_dismiss=lambda e: print("Modal dialog dismissed!"),
         )
-        self.username_tb = ft.TextField(label="Username", max_lines=1, width=280, hint_text="Enter username here", max_length=16)
-        self.email_tb = ft.TextField(label="Email", max_lines=1, width=280, hint_text="Enter email here", keyboard_type=ft.KeyboardType.EMAIL)
+        self.username_tb = ft.TextField(label="Username", max_lines=1, width=280, hint_text="Enter username here", max_length=16, color=ft.colors.DEEP_PURPLE_300)
+        self.email_tb = ft.TextField(label="Email", max_lines=1, width=280, hint_text="Enter email here", keyboard_type=ft.KeyboardType.EMAIL, color=ft.colors.DEEP_PURPLE_300)
         self.password_tb = ft.TextField(label="Password", password=True, can_reveal_password=True, max_lines=1, width=280, hint_text="Enter password here", max_length=16)
         self.submit_button = ft.ElevatedButton(text="Sign Me Up!", color=ft.colors.BLUE_300, on_click=self.sign_up_button_clicked)
         self.items = [self.username_tb, self.email_tb, self.password_tb, self.submit_button]
@@ -105,7 +105,7 @@ class SignIn:
                 ft.TextButton("Close", on_click=self.close_dlg)
             ],
             actions_alignment=ft.MainAxisAlignment.END,
-            on_dismiss=lambda e: print("Modal dialog dismissed!"),
+            # on_dismiss=lambda e: print("Modal dialog dismissed!"),
         )
         self.username_tb = ft.TextField(label="Username", max_lines=1, width=280, hint_text="Enter username here", value="Sxd3306")
         self.email_tb = ft.TextField(label="Email", max_lines=1, width=280, hint_text="Enter email here", keyboard_type=ft.KeyboardType.EMAIL, value="shadag71@gmail.com")
@@ -219,7 +219,7 @@ class UpdateDetails:
                 ft.TextButton("Close", on_click=self.close_dlg)
             ],
             actions_alignment=ft.MainAxisAlignment.END,
-            on_dismiss=lambda e: print("Modal dialog dismissed!"),
+            # on_dismiss=lambda e: print("Modal dialog dismissed!"),
         )
         self.title_text = ft.Text("Update Your Information, " + self.details["username"] + "")
         self.alert_message = ft.Text("No Detail Has Been Changed", color=ft.colors.RED_400)

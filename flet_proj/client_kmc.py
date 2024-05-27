@@ -114,8 +114,10 @@ class FilePicker:
                 saved_file = file.read()
                 self.saved_file = saved_file
                 self.f_name = e.files[0].name
+                file_size: str = str(e.files[0].size)
                 print("OK", e.files[0].name)
                 if self.saved_file is not None:
+                    self.buttons_row.controls.append(ft.Text(f"File picked: {self.f_name}, Size: {file_size}"))
                     self.buttons_row.update()
                     self.content.update()
                     self.page.update()

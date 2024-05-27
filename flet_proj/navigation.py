@@ -52,7 +52,7 @@ class UserMenu:
         self.user_menu = ft.NavigationBar(
             destinations=[
                 ft.NavigationDestination(
-                    icon_content=ft.TextButton("Home", icon=ft.icons.HOME, icon_color=ft.colors.BLUE_400,
+                    icon_content=ft.TextButton("Home", icon=ft.icons.HOME, icon_color=ft.colors.DEEP_PURPLE_300,
                                                on_click=lambda _: page.go("/user_home"))
                 ),
                 ft.NavigationDestination(
@@ -61,12 +61,12 @@ class UserMenu:
                 ),
                 ft.NavigationDestination(
                     icon_content=ft.TextButton("Former Data", icon=ft.icons.TABLE_CHART_ROUNDED,
-                                               icon_color=ft.colors.BLUE_400,
+                                               icon_color=ft.colors.DEEP_PURPLE_300,
                                                on_click=lambda _: page.go("/former_data"))
                 ),
                 ft.NavigationDestination(
                     icon_content=ft.TextButton("Personal Info", icon=ft.icons.SUPERVISED_USER_CIRCLE_ROUNDED,
-                                               icon_color=ft.colors.BLUE_400,
+                                               icon_color=ft.colors.DEEP_PURPLE_300,
                                                on_click=lambda _: page.go("/update_details"))
                 ),
             ]
