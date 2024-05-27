@@ -1,5 +1,4 @@
 import time
-
 import flet as ft
 import requests
 from typing import Union

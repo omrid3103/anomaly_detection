@@ -71,6 +71,10 @@ class SignUp:
                 self.details["email"] = self.email_tb.value
                 self.details["password"] = self.password_tb.value
                 self.details["token"] = result["token"]
+                self.password_tb.value = ""
+                self.username_tb.value = ""
+                self.email_tb.value = ""
+                self.page.update()
                 time.sleep(1)
                 self.page.go('/user_home')
 
@@ -184,6 +188,10 @@ class SignIn:
                     self.details["email"] = self.email_tb.value
                     self.details["password"] = self.password_tb.value
                     self.details["token"] = result["token"]
+                    self.password_tb.value = ""
+                    self.username_tb.value = ""
+                    self.email_tb.value = ""
+                    self.page.update()
                     time.sleep(1)
                     self.page.go('/user_home')
         self.page.update()
