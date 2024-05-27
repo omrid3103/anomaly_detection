@@ -155,6 +155,7 @@ class FilePicker:
         self.upload_row.update()
         self.start_date_row.controls.remove(self.start_date_row.controls[1])
         self.end_date_row.controls.remove(self.end_date_row.controls[1])
+        self.buttons_row.controls.remove(self.buttons_row.controls[-1])
         self.content.update()
         self.page.update()
         self.page.go("/data_table")

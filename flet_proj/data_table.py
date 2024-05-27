@@ -73,7 +73,8 @@ class DataTable:
         self.search_field = ft.TextField(label="search", width=350, on_change=self.search_field_input_changed, visible=False)
         self.color_dropdown = ft.Dropdown(
             width=150,
-            options=self.colors_dropdown_options_generation(),
+            # options=self.colors_dropdown_options_generation(),
+            options=[],
             hint_text="Color Cluster",
             on_change=self.color_dropdown_changed,
             visible=False
@@ -167,14 +168,23 @@ class DataTable:
     # *******************   Dropdown Options & Button  ********************************
     # =================================================================================
 
+
     def colors_dropdown_options_generation(self) -> list[ft.dropdown.Option]:
+        ft_options_list = []
+        for c in self.row_colors:
+            if c not in ft_options_list:
+                ft_options_list.append(c)
         options_list = []
         for c in self.COLORS.keys():
-            options_list.append(
-                ft.dropdown.Option(c)
-            )
+            if self.COLORS[c] in ft_options_list:
+                options_list.append(ft.dropdown.Option(c))
+        # for c in self.COLORS.keys():
+        #     options_list.append(
+        #         ft.dropdown.Option(c)
+        #     )
         options_list.append(ft.dropdown.Option("None"))
         return options_list
+
     def search_dropdown_options_generation(self) -> list[ft.dropdown.Option]:
         options_list = []
         for i in range(len(self.columns_names_list)):
@@ -290,7 +300,6 @@ class DataTable:
         else:
             most_efficient_number_of_clusters = 4
 
-
         returned_dict = requests.get(f"{self.request_url}kmc_server",
                                      params={"points_array": json.dumps(self.points_coordinates.tolist()), "n_clusters": most_efficient_number_of_clusters, "iterations": 35}).json()
         # {"centers_array": centers_array, "grouping_list": grouping_list}
@@ -307,6 +316,7 @@ class DataTable:
             for i, r in enumerate(self.data_table.rows):
                 r.color = list(self.COLORS.values())[group_index(grouping_list, i)]
                 self.row_colors.append(r.color)
+            self.color_dropdown.options = self.colors_dropdown_options_generation()
             self.search_row.controls.remove(self.kmc_button)
             self.dropdown_obj.visible = True
             self.data_table.update()
