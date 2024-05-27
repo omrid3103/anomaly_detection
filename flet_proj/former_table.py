@@ -151,6 +151,7 @@ class FormerTable:
     # *******************   Dropdown Options & Button  ********************************
     # =================================================================================
 
+
     def colors_dropdown_options_generation(self) -> list[ft.dropdown.Option]:
         ft_options_list = []
         for c in self.row_colors:
@@ -166,6 +167,7 @@ class FormerTable:
         #     )
         options_list.append(ft.dropdown.Option("None"))
         return options_list
+
     def search_dropdown_options_generation(self) -> list[ft.dropdown.Option]:
         options_list = []
         for i in range(len(self.columns_names_list)):
