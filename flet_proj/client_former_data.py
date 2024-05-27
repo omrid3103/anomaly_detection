@@ -52,6 +52,7 @@ class FormerData:
                 pass
 
         self.selected_table_df: Union[pd.DataFrame, None] = None
+        self.selected_table_groups: Union[list[list[int]], None] = None
 
         self.column = ft.Column(controls=self.items)
 
@@ -65,7 +66,7 @@ class FormerData:
         result = requests.get(f"{self.request_url}extract_user_data", params={"token": self.token}).json()
         if result["success"]:
             if result["response"] == "Sending data":
-                return result["data"], "Yes"
+                return json.loads(result["data"]), "Yes"
             elif result["response"] == "You don't have any data saved...":
                 return None, "Yes"
         else:
@@ -103,6 +104,7 @@ class FormerData:
         self.selected_table_df = pd.read_json(json_buffer)
         self.page.update()
         if self.selected_table_df is not None:
+            self.selected_table_groups = json.loads(self.data[table_to_show_index]["grouping_list"])
             self.page.go('/former_table')
 
     def table_options_generation(self):

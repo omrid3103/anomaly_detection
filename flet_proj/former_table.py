@@ -11,7 +11,7 @@ import time
 
 class FormerTable:
 
-    def __init__(self, page: ft.Page, url: str, table_df: pd.DataFrame):
+    def __init__(self, page: ft.Page, url: str, table_df: pd.DataFrame, grouping_list: list[list[int]]):
         self.page = page
         self.request_url = url
         self.COLORS: dict[ft.colors, str] = {
@@ -28,7 +28,8 @@ class FormerTable:
 
 
         self.df: pd.DataFrame = table_df
-        self.points_coordinates = np.array(json.loads(requests.get(f"{self.request_url}get_points_array", params={"json_df": self.df.to_json(orient='records')}).json()["points_array"]))
+        # self.points_coordinates = np.array(json.loads(requests.get(f"{self.request_url}get_points_array", params={"json_df": self.df.to_json(orient='records')}).json()["points_array"]))
+        self.grouping_list = grouping_list
 
         self.columns_names_list = self.df.columns.tolist()
         self.num_rows: int = self.df.shape[0]
@@ -56,7 +57,7 @@ class FormerTable:
         self.search_field = ft.TextField(label="search", width=350, on_change=self.search_field_input_changed, visible=False)
         self.color_dropdown = ft.Dropdown(
             width=150,
-            options=self.colors_dropdown_options_generation(),
+            options=[],
             hint_text="Color Cluster",
             on_change=self.color_dropdown_changed,
             visible=False
@@ -89,12 +90,14 @@ class FormerTable:
 
 
         self.search_row = ft.Row([self.kmc_button, self.dropdown_obj, self.search_field, self.color_dropdown], spacing=80)
+        # self.search_row = ft.Row([self.dropdown_obj, self.search_field, self.color_dropdown], spacing=80)
         self.message_row = ft.Row([self.data_not_found])
         self.table_row = ft.Row([self.data_table])
 
         self.items = [self.search_row, self.table_row]
         self.column = ft.Column(spacing=20, controls=self.items)
         self.column.scroll = ft.ScrollMode.ALWAYS
+        # self.kmc_table_definition()
 
 
     # =================================================================================
@@ -149,11 +152,18 @@ class FormerTable:
     # =================================================================================
 
     def colors_dropdown_options_generation(self) -> list[ft.dropdown.Option]:
+        ft_options_list = []
+        for c in self.row_colors:
+            if c not in ft_options_list:
+                ft_options_list.append(c)
         options_list = []
         for c in self.COLORS.keys():
-            options_list.append(
-                ft.dropdown.Option(c)
-            )
+            if self.COLORS[c] in ft_options_list:
+                options_list.append(ft.dropdown.Option(c))
+        # for c in self.COLORS.keys():
+        #     options_list.append(
+        #         ft.dropdown.Option(c)
+        #     )
         options_list.append(ft.dropdown.Option("None"))
         return options_list
     def search_dropdown_options_generation(self) -> list[ft.dropdown.Option]:
@@ -263,22 +273,22 @@ class FormerTable:
 
 
     def kmc_table_definition(self, e) -> None:
-        json_points = self.points_coordinates.tolist()
-        json_points = json.dumps(json_points)
-        returned_dict = requests.get(f"{self.request_url}most_efficient_n_of_clusters",
-                                     params={"points_json": json_points, "min_clusters_to_check": 4, "max_clusters_to_check": 15}).json()
-        if returned_dict["success"]:
-            most_efficient_number_of_clusters = returned_dict["n_clusters"]
-        else:
-            most_efficient_number_of_clusters = 4
-        print(most_efficient_number_of_clusters)
-
-
-        returned_dict = requests.get(f"{self.request_url}kmc_server",
-                                     params={"points_array": json.dumps(self.points_coordinates.tolist()), "n_clusters": most_efficient_number_of_clusters, "iterations": 35}).json()
-        # {"centers_array": centers_array, "grouping_list": grouping_list}
-        grouping_list: list[list[int]] = json.loads(returned_dict["grouping_list"])
-        grouping_list_length = sum(len(sublist) for sublist in grouping_list)
+        # json_points = self.points_coordinates.tolist()
+        # json_points = json.dumps(json_points)
+        # returned_dict = requests.get(f"{self.request_url}most_efficient_n_of_clusters",
+        #                              params={"points_json": json_points, "min_clusters_to_check": 4, "max_clusters_to_check": 15}).json()
+        # if returned_dict["success"]:
+        #     most_efficient_number_of_clusters = returned_dict["n_clusters"]
+        # else:
+        #     most_efficient_number_of_clusters = 4
+        # print(most_efficient_number_of_clusters)
+        #
+        #
+        # returned_dict = requests.get(f"{self.request_url}kmc_server",
+        #                              params={"points_array": json.dumps(self.points_coordinates.tolist()), "n_clusters": most_efficient_number_of_clusters, "iterations": 35}).json()
+        # # {"centers_array": centers_array, "grouping_list": grouping_list}
+        # grouping_list: list[list[int]] = self.grouping_list
+        grouping_list_length = sum(len(sublist) for sublist in self.grouping_list)
 
         def group_index(g_list: list[list[int]], index_to_check: int) -> int:
             for g_index, g in enumerate(g_list):
@@ -288,8 +298,9 @@ class FormerTable:
 
         if grouping_list_length == len(self.data_table.rows):
             for i, r in enumerate(self.data_table.rows):
-                r.color = list(self.COLORS.values())[group_index(grouping_list, i)]
+                r.color = list(self.COLORS.values())[group_index(self.grouping_list, i)]
                 self.row_colors.append(r.color)
+            self.color_dropdown.options = self.colors_dropdown_options_generation()
             self.search_row.controls.remove(self.kmc_button)
             self.dropdown_obj.visible = True
             self.data_table.update()

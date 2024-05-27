@@ -75,7 +75,10 @@ Tables = sqlalchemy.Table('Tables', tables_db_metadata,
                                                     ),
                                   sqlalchemy.Column('TimeStamp', sqlalchemy.String(255), primary_key=False,
                                                     ),
-                                  sqlalchemy.Column('Table', sqlalchemy.JSON(), primary_key=False)
+                                  sqlalchemy.Column('Table', sqlalchemy.JSON(), primary_key=False
+                                                    ),
+                                  sqlalchemy.Column('Groups', sqlalchemy.JSON(), primary_key=False
+                                                    ),
                                   )
 
 tables_db_session = Tables_db_Session()
@@ -362,7 +365,7 @@ def pdf_file_name_generator(file_name: str):
 
 
 @app.post("/save_table")
-async def save_table(token: str, time_stamp: str, json_df: str):
+async def save_table(token: str, time_stamp: str, json_df: str, grouping_list: str):
     token_decrypted = decrypt_token(token)
     if token_decrypted["is_expired"]:
         return {"success": False, "response": "Token expired"}
@@ -378,7 +381,7 @@ async def save_table(token: str, time_stamp: str, json_df: str):
         if not any(data[-1] == pass_hash for data in username_auth):
             return {"success": False, "response": "Not Matching Password"}
 
-        insert_query = sqlalchemy.insert(Tables).values(Username=username, TimeStamp=time_stamp, Table=json_df)
+        insert_query = sqlalchemy.insert(Tables).values(Username=username, TimeStamp=time_stamp, Table=json_df, Groups=grouping_list)
         tables_db_session.execute(insert_query)
         tables_db_session.commit()
         return {"success": True, "response": "Table Saved Successfully"}
@@ -409,15 +412,16 @@ async def extract_user_data(token: str):
             return {"success": True, "response": "You don't have any data saved..."}
 
         list_of_dicts: list[dict] = []
-        temp_table_dict = {"table_time_stamp": "", "json_df": ""}
+        temp_table_dict = {"table_time_stamp": "", "json_df": "", "grouping_list": ""}
 
         for d in data:
             temp_table_dict["table_time_stamp"] = d[2]
             temp_table_dict["json_df"] = d[3]
+            temp_table_dict["grouping_list"] = d[4]
             list_of_dicts.append(temp_table_dict)
             temp_table_dict = {"table_time_stamp": "", "json_df": ""}
 
-        return {"success": True, "response": "Sending data", "data": list_of_dicts}
+        return {"success": True, "response": "Sending data", "data": json.dumps(list_of_dicts)}
     else:
         return {"success": False, "response": "Username Does Not Exist"}
 

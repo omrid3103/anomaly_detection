@@ -46,6 +46,7 @@ class DataTable:
         # self.points_coordinates = self.data["points_array"].decode()
         self.points_coordinates = json.loads(self.data["points_array"])
         self.points_coordinates = np.array(self.points_coordinates)
+        self.grouping_list: list[list[int]] = []
 
         self.columns_names_list = self.file_df.columns.tolist()
         self.num_rows: int = self.file_df.shape[0]
@@ -105,7 +106,7 @@ class DataTable:
         )
         self.kmc_button = ft.ElevatedButton("kmc the table", on_click=self.kmc_table_definition)
 
-        self.save_table = ft.ElevatedButton("Save table", on_click=self.save_table_in_db)
+        self.save_table = ft.ElevatedButton("Save table", on_click=self.save_table_in_db, disabled=True)
 
 
         self.search_row = ft.Row([self.kmc_button, self.dropdown_obj, self.search_field, self.color_dropdown], spacing=80)
@@ -303,8 +304,8 @@ class DataTable:
         returned_dict = requests.get(f"{self.request_url}kmc_server",
                                      params={"points_array": json.dumps(self.points_coordinates.tolist()), "n_clusters": most_efficient_number_of_clusters, "iterations": 35}).json()
         # {"centers_array": centers_array, "grouping_list": grouping_list}
-        grouping_list: list[list[int]] = json.loads(returned_dict["grouping_list"])
-        grouping_list_length = sum(len(sublist) for sublist in grouping_list)
+        self.grouping_list: list[list[int]] = json.loads(returned_dict["grouping_list"])
+        grouping_list_length = sum(len(sublist) for sublist in self.grouping_list)
 
         def group_index(g_list: list[list[int]], index_to_check: int) -> int:
             for g_index, g in enumerate(g_list):
@@ -314,10 +315,12 @@ class DataTable:
 
         if grouping_list_length == len(self.data_table.rows):
             for i, r in enumerate(self.data_table.rows):
-                r.color = list(self.COLORS.values())[group_index(grouping_list, i)]
+                r.color = list(self.COLORS.values())[group_index(self.grouping_list, i)]
                 self.row_colors.append(r.color)
             self.color_dropdown.options = self.colors_dropdown_options_generation()
             self.search_row.controls.remove(self.kmc_button)
+            self.save_table.disabled = False
+            self.save_table.update()
             self.dropdown_obj.visible = True
             self.data_table.update()
             self.column.update()
@@ -327,7 +330,8 @@ class DataTable:
         payload = {
             "token": self.token,
             "time_stamp": self.table_time_stamp,
-            "json_df": self.file_df.to_json(orient='records')
+            "json_df": self.file_df.to_json(orient='records'),
+            "grouping_list": json.dumps(self.grouping_list)
         }
         result = requests.post(f"{self.request_url}save_table", params=payload).json()
         print(result)

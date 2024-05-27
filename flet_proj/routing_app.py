@@ -181,7 +181,7 @@ def main(page: ft.Page, url: str):
         if page.route == "/former_table":
             df_data_keeper.update_df_content(former_data.selected_table_df)
             if df_data_keeper.df is not None:
-                former_table = FormerTable(page, url, df_data_keeper.df)
+                former_table = FormerTable(page, url, df_data_keeper.df, former_data.selected_table_groups)
                 table_appbar.leading = ft.IconButton(icon=ft.icons.ARROW_BACK, on_click=lambda _: page.go("/former_data"))
                 page.views.append(
                     ft.View(
