@@ -129,8 +129,6 @@ def main(page: ft.Page, url: str):
                     ],
                 )
             )
-        # if user_information.info["email"] != update_details.details["email"] or user_information.info["password"] != update_details.details["password"]:
-        #     user_information.update_info(update_details.details["username"], update_details.details["email"], update_details.details["password"])
         if page.route == "/client_kmc":
             page.views.append(
                 ft.View(
@@ -173,9 +171,6 @@ def main(page: ft.Page, url: str):
                     scroll=ft.ScrollMode.ALWAYS
                 )
             )
-            print(former_data.selected_table_df)
-
-            print(df_data_keeper.df)
 
 
         if page.route == "/former_table":
