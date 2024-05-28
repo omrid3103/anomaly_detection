@@ -7,11 +7,12 @@ import pandas as pd
 from typing import Union
 import requests
 import time
+from db_and_pdf_demo.kmc_controller import CommonChars
 
 
 class FormerTable:
 
-    def __init__(self, page: ft.Page, url: str, table_df: pd.DataFrame, grouping_list: list[list[int]]):
+    def __init__(self, page: ft.Page, url: str, file_df: pd.DataFrame, grouping_list: list[list[int]]):
         self.page = page
         self.request_url = url
         self.COLORS: dict[ft.colors, str] = {
@@ -27,7 +28,7 @@ class FormerTable:
         }
 
 
-        self.df: pd.DataFrame = table_df
+        self.df: pd.DataFrame = file_df
         # self.points_coordinates = np.array(json.loads(requests.get(f"{self.request_url}get_points_array", params={"json_df": self.df.to_json(orient='records')}).json()["points_array"]))
         self.grouping_list = grouping_list
 
@@ -35,6 +36,15 @@ class FormerTable:
         self.num_rows: int = self.df.shape[0]
         self.num_cells_in_each_row: int = len(self.df.iloc[0].tolist())
         self.row_colors: list[ft.colors] = []
+        self.alert_dlg = ft.AlertDialog(
+            modal=True,
+            title=ft.Text("Timeout Error"),
+            content=ft.Text("You are connected for too long. You will now be disconnected."),
+            actions=[
+            ],
+            actions_alignment=ft.MainAxisAlignment.END,
+            on_dismiss=lambda e: print("Modal dialog dismissed!"),
+        )
 
 
         # =================================================================================
@@ -88,13 +98,17 @@ class FormerTable:
         )
         self.kmc_button = ft.ElevatedButton("kmc the table", on_click=self.kmc_table_definition)
 
+        self.anomalies_information_button = ft.ElevatedButton("Analyze Transactions", on_click=self.show_anomalies)
+        self.common_chars: Union[CommonChars, None] = None
+
 
         self.search_row = ft.Row([self.kmc_button, self.dropdown_obj, self.search_field, self.color_dropdown], spacing=80)
         # self.search_row = ft.Row([self.dropdown_obj, self.search_field, self.color_dropdown], spacing=80)
         self.message_row = ft.Row([self.data_not_found])
         self.table_row = ft.Row([self.data_table])
+        self.anomaly_row = ft.Row([self.anomalies_information_button], visible=False)
 
-        self.items = [self.search_row, self.table_row]
+        self.items = [self.search_row, self.table_row, self.anomaly_row]
         self.column = ft.Column(spacing=20, controls=self.items)
         self.column.scroll = ft.ScrollMode.ALWAYS
         # self.kmc_table_definition()
@@ -257,21 +271,44 @@ class FormerTable:
         if self.color_dropdown.value != "None":
             flet_row_color: ft.colors = self.COLORS[self.color_dropdown.value]
             rows_to_present: list[ft.DataRow] = []
-            for r in self.data_table.rows:
+            indexes_of_rows: list[int] = []
+            for i, r in enumerate(self.data_table.rows):
                 if r.color == flet_row_color:
                     rows_to_present.append(r)
+                    indexes_of_rows.append(i)
+            self.common_chars = CommonChars(indexes_of_rows, self.df)
             self.data_table.rows = rows_to_present
             if len(rows_to_present) == 0:
                 self.items.remove(self.table_row)
+                self.anomaly_row.visible = False
+                self.anomaly_row.update()
                 self.items.append(self.message_row)
                 self.items.append(self.table_row)
+            else:
+                self.anomaly_row.visible = True
+                self.anomaly_row.update()
+                self.column.update()
         else:
             if self.message_row in self.items:
                 self.items.remove(self.message_row)
             self.data_table.rows = self.table_rows_generation()
+            self.anomaly_row.visible = False
+            self.anomaly_row.update()
 
         self.data_table.update()
         self.page.update()
+
+
+    def show_anomalies(self, e):
+        if self.common_chars is not None:
+            self.alert_dlg.title = ft.Text("Analysis")
+            self.alert_dlg.content = self.common_chars.alert_dialog_update()
+            self.alert_dlg.actions = [ft.TextButton("Close", on_click=self.close_dlg)]
+            self.open_dlg()
+        else:
+            self.alert_dlg.title = ft.Text("Error")
+            self.alert_dlg.content = ft.Text("An error has occurred")
+            self.alert_dlg.actions = [ft.TextButton("Close", on_click=self.close_dlg)]
 
 
     def kmc_table_definition(self, e) -> None:
@@ -309,6 +346,15 @@ class FormerTable:
             self.column.update()
             self.page.update()
 
+
+    def open_dlg(self,):
+        self.page.dialog = self.alert_dlg
+        self.alert_dlg.open = True
+        self.page.update()
+
+    def close_dlg(self, e):
+        self.alert_dlg.open = False
+        self.page.update()
 
     #🦾🫡🪖
 
