@@ -21,6 +21,7 @@ def main(page: ft.Page):
         "Pick date",
         icon=ft.icons.CALENDAR_MONTH,
         on_click=lambda _: date_picker.pick_date(),
+        color=ft.colors.DEEP_PURPLE_300
     )
 
     page.add(date_button)

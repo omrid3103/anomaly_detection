@@ -95,9 +95,9 @@ class FormerTable:
             columns=self.table_columns_generation(),
             rows=self.table_rows_generation()
         )
-        self.kmc_button = ft.ElevatedButton("kmc the table", on_click=self.kmc_table_definition)
+        self.kmc_button = ft.ElevatedButton("kmc the table", on_click=self.kmc_table_definition, color=ft.colors.DEEP_PURPLE_300)
 
-        self.anomalies_information_button = ft.ElevatedButton("Analyze Transactions", on_click=self.show_anomalies)
+        self.anomalies_information_button = ft.ElevatedButton("Analyze Transactions", on_click=self.show_anomalies, color=ft.colors.DEEP_PURPLE_300)
         self.common_chars: Union[CommonChars, None] = None
 
 
@@ -136,7 +136,7 @@ class FormerTable:
             row_i_information = self.df.iloc[i].tolist()
             for j in range(self.num_cells_in_each_row):
                 cells_list.append(
-                    ft.DataCell(ft.Text(f"{str(row_i_information[j])}", text_align=ft.TextAlign.CENTER))
+                    ft.DataCell(ft.Text(f"{str(row_i_information[j])}", text_align=ft.TextAlign.CENTER, color=ft.colors.BLACK))
                 )
             if len(self.row_colors) == 0:
                 rows_list.append(
@@ -216,7 +216,7 @@ class FormerTable:
             cells_g = []
             for n in range(self.num_cells_in_each_row):
                 cells_g.append(
-                    ft.DataCell(ft.Text(f"{str(x_c[self.columns_names_list[n]])}"))
+                    ft.DataCell(ft.Text(f"{str(x_c[self.columns_names_list[n]])}", color=ft.colors.BLACK))
                 )
             return cells_g
 

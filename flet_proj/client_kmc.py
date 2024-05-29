@@ -15,7 +15,7 @@ class FilePicker:
         self.token = token
         self.confirmation = ft.Text("Your file has been uploaded", color=ft.colors.GREEN_200, weight=ft.FontWeight("bold"))
         self.table_welcoming_text_button = ft.TextButton(
-            content=ft.Text("Your credit table is ready for showing! Show it", color=ft.colors.BLUE_400),
+            content=ft.Text("Your credit table is ready for showing! Show it", color=ft.colors.DEEP_PURPLE_300),
             on_hover=False,
             on_click=self.text_button_clicked
         )
@@ -44,7 +44,7 @@ class FilePicker:
             style=ft.ButtonStyle(
                 shape=ft.RoundedRectangleBorder(radius=2)
             ),
-            color=ft.colors.BLUE_400,
+            color=ft.colors.DEEP_PURPLE_300,
             on_click=lambda _: self.pick_files_dialog.pick_files()
         )
 
@@ -60,6 +60,7 @@ class FilePicker:
             "Pick start date",
             icon=ft.icons.CALENDAR_MONTH,
             on_click=lambda _: self.start_date_picker.pick_date(),
+            color=ft.colors.DEEP_PURPLE_300
         )
         self.start_date_value: str = ""
 
@@ -76,6 +77,7 @@ class FilePicker:
             "Pick end date",
             icon=ft.icons.CALENDAR_MONTH,
             on_click=lambda _: self.end_date_picker.pick_date(),
+            color=ft.colors.DEEP_PURPLE_300
         )
         self.end_date_value: str = ""
         self.table_time_stamp: str = ""
@@ -85,7 +87,7 @@ class FilePicker:
         self.upload_button = ft.ElevatedButton(
             "Upload File",
             icon=ft.icons.FILE_COPY_OUTLINED,
-            color=ft.colors.BLUE_400,
+            color=ft.colors.DEEP_PURPLE_300,
             on_click=self.upload_file,
             visible=False
         )
@@ -168,7 +170,7 @@ class FilePicker:
             self.page.update()
         self.start_date_value = self.start_date_picker.value.strftime("%d/%m/%y")
         start_date_msg = ft.Text(f"Start Date for your table is: {self.start_date_value}", visible=True,
-                               weight=ft.FontWeight("bold"), color=ft.colors.BLUE_400, size=20)
+                               weight=ft.FontWeight("bold"), color=ft.colors.DEEP_PURPLE_300, size=20)
         self.start_date_row.controls.append(start_date_msg)
         self.start_date_row.update()
         if self.end_date_value != "" and self.f_name != "":
@@ -188,7 +190,7 @@ class FilePicker:
         self.end_date_value = self.end_date_picker.value.strftime("%d/%m/%y")
         self.table_time_stamp = f"{self.start_date_value} - {self.end_date_value}"
         end_date_msg = ft.Text(f"End Date for your table is: {self.end_date_value}", visible=True,
-                               weight=ft.FontWeight("bold"), color=ft.colors.BLUE_400, size=20)
+                               weight=ft.FontWeight("bold"), color=ft.colors.DEEP_PURPLE_300, size=20)
         self.end_date_row.controls.append(end_date_msg)
         self.end_date_row.update()
         if self.start_date_value != "" and self.f_name != "":

@@ -35,7 +35,7 @@ class FormerData:
                         style=ft.ButtonStyle(
                             shape=ft.RoundedRectangleBorder(radius=2)
                         ),
-                        color=ft.colors.BLUE_400,
+                        color=ft.colors.DEEP_PURPLE_300,
                         disabled=True,
                         on_click=self.button_clicked
                     )

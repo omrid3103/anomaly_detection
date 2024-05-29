@@ -389,17 +389,17 @@ class CommonChars:
 
 
 
-        time_row_title = ft.Row(controls=[ft.Text("Date Affiliations:", color=ft.colors.BLACK, size=20, weight=ft.FontWeight.BOLD)])
+        time_row_title = ft.Row(controls=[ft.Text("Date Affiliations:", size=20, weight=ft.FontWeight.BOLD)])
         time_row_info = ft.Row([information_messages[0]])
         time_row_alert = ft.Row([alert_messages[0]])
-        transaction_row_title = ft.Row(controls=[ft.Text("Transactions Affiliations:", color=ft.colors.BLACK, size=20, weight=ft.FontWeight.BOLD)])
+        transaction_row_title = ft.Row(controls=[ft.Text("Transactions Affiliations:", size=20, weight=ft.FontWeight.BOLD)])
         transaction_row_info = ft.Row([information_messages[1]])
         transaction_row_alert = ft.Row([alert_messages[1]])
-        card_showing_row_title = ft.Row(controls=[ft.Text("Card Appearance Affiliations:", color=ft.colors.BLACK, size=20, weight=ft.FontWeight.BOLD)])
+        card_showing_row_title = ft.Row(controls=[ft.Text("Card Appearance Affiliations:", size=20, weight=ft.FontWeight.BOLD)])
         card_showing_row_info = ft.Row([information_messages[2]])
         is_anomaly_info = is_anomaly(anomalies_indexes)
         print(f"is_anomaly_info: {is_anomaly_info}")
-        anomalies_row_title = ft.Row([ft.Text("Potential anomalies:", color=ft.colors.BLACK, size=20,weight=ft.FontWeight.BOLD)])
+        anomalies_row_title = ft.Row([ft.Text("Potential anomalies:", size=20,weight=ft.FontWeight.BOLD)])
         controls_list_for_sure = []
         controls_list_maybe = []
         if is_anomaly_info[0] != [] and is_anomaly_info[1] != []:
