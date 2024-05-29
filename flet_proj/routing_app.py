@@ -71,7 +71,7 @@ def main(page: ft.Page, url: str):
                 controls=[
                     guest_appbar,
                     guest_menu,
-                    ft.Row([ft.Image(src="../authentication/Logo.jpg"), ft.Text("Welcome Guest", size=50, color=ft.colors.DEEP_PURPLE_300)])
+                    ft.Row([ft.Image(src="../authentication/CompanyLogo.png"), ft.Text("Welcome Guest", size=50, color=ft.colors.DEEP_PURPLE_300)], Ro)
                 ],
             )
         )
@@ -112,7 +112,7 @@ def main(page: ft.Page, url: str):
                     [
                         user_appbar,
                         user_menu,
-                        ft.Row([ft.Image(src="../authentication/Logo.jpg"),
+                        ft.Row([ft.Image(src="../authentication/CompanyLogo.png"),
                                 ft.Text("Welcome " + user_information.info["username"] + "", color=ft.colors.DEEP_PURPLE_300, size=50)])
                     ],
                 )
