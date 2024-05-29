@@ -1,3 +1,5 @@
+import fontTools.merge.util
+
 from flet_proj.authentication_flet import SignUp, SignIn, UpdateDetails
 from flet_proj.navigation import *
 from flet_proj.client_kmc import FilePicker
@@ -61,10 +63,20 @@ def main(page: ft.Page, url: str):
         user_information.info["username"] = ""
         user_information.info["email"] = ""
         user_information.info["password"] = ""
+        sign_up.details["username"] = ""
+        sign_up.details["email"] = ""
+        sign_up.details["password"] = ""
+        sign_up.details["token"] = ""
+        sign_in.details["username"] = ""
+        sign_in.details["email"] = ""
+        sign_in.details["password"] = ""
+        sign_in.details["token"] = ""
 
 
     def route_change(route):
         page.views.clear()
+        if page.route == "/guest_home":
+            reset_information()
         page.views.append(
             ft.View(
                 route="/guest_home",
@@ -73,15 +85,40 @@ def main(page: ft.Page, url: str):
                     guest_menu,
                     ft.Column(
                         [
-                            ft.Row([ft.Image(src="../authentication/CompanyLogo.png"), ft.Text("Welcome Guest", size=50, color=ft.colors.DEEP_PURPLE_300)], alignment=ft.MainAxisAlignment.CENTER)
+                            ft.Row(
+                                [
+                                    ft.Image(
+                                        src="../authentication/CompanyLogo.png"
+                                    ),
+                                    ft.Text(
+                                        spans=[
+                                            ft.TextSpan(
+                                                f"Welcome Guest",
+                                                ft.TextStyle(
+                                                    size=50,
+                                                    weight=ft.FontWeight.BOLD,
+                                                    foreground=ft.Paint(
+                                                        gradient=ft.PaintLinearGradient(
+                                                            (0, 20),
+                                                            (3200, 20),
+                                                            [
+                                                                ft.colors.DEEP_PURPLE_300,
+                                                                ft.colors.BLACK
+                                                            ]
+                                                        )
+                                                    )
+                                                )
+                                            )
+                                        ],
+                                    )
+                                ],
+                                alignment=ft.MainAxisAlignment.CENTER)
                         ],
                         alignment=ft.MainAxisAlignment.CENTER
                     )
                 ],
             )
         )
-        if page.route == "/guest_home":
-            reset_information()
         if page.route == "/sign_up":
             page.views.append(
                 ft.View(
@@ -104,8 +141,10 @@ def main(page: ft.Page, url: str):
                     ],
                 )
             )
-        insert_user_information(sign_up.details["username"], sign_up.details["email"], sign_up.details["password"], sign_up.details["token"])
-        insert_user_information(sign_in.details["username"], sign_in.details["email"], sign_in.details["password"], sign_in.details["token"])
+        if sign_up.details["username"] != "":
+            insert_user_information(sign_up.details["username"], sign_up.details["email"], sign_up.details["password"], sign_up.details["token"])
+        if sign_in.details["username"] != "":
+            insert_user_information(sign_in.details["username"], sign_in.details["email"], sign_in.details["password"], sign_in.details["token"])
         update_details = UpdateDetails(page, user_information.info["username"], user_information.info["email"], user_information.info["password"], user_information.info["token"], url)
         if file_picker.token == "":
             file_picker.token = user_information.info["token"]
@@ -119,15 +158,38 @@ def main(page: ft.Page, url: str):
                         user_menu,
                         ft.Column(
                             [
-                                ft.Row([ft.Image(src="../authentication/CompanyLogo.png"),
-                                        ft.Text(f"Welcome {user_information.info['username']}", size=50, color=ft.colors.DEEP_PURPLE_300)],
-                                       alignment=ft.MainAxisAlignment.CENTER)
+                                ft.Row(
+                                    [
+                                        ft.Image(
+                                            src="../authentication/CompanyLogo.png"
+                                        ),
+                                        ft.Text(
+                                            spans=[
+                                                ft.TextSpan(
+                                                    f"Welcome {user_information.info['username']}",
+                                                    ft.TextStyle(
+                                                        size=50,
+                                                        weight=ft.FontWeight.BOLD,
+                                                        foreground=ft.Paint(
+                                                            gradient=ft.PaintLinearGradient(
+                                                                (0, 20),
+                                                                (3200, 20),
+                                                                [
+                                                                    ft.colors.DEEP_PURPLE_300,
+                                                                    ft.colors.BLACK
+                                                                ]
+                                                            )
+                                                        )
+                                                    )
+                                                )
+                                            ],
+                                        )
+                                    ],
+                                    alignment=ft.MainAxisAlignment.CENTER
+                                )
                             ],
-                            alignment=ft.MainAxisAlignment.CENTER
                         )
-                    ],
-                        # ft.Row([ft.Image(src="../authentication/CompanyLogo.png"),
-                        #         ft.Text("Welcome " + user_information.info["username"] + "", color=ft.colors.DEEP_PURPLE_300, size=50)])
+                    ]
                 )
             )
             user_appbar.leading = ft.TextButton(text=f"{user_information.info['username']}", disabled=True)

@@ -95,11 +95,32 @@ class GuestAppBar:
         # self.menu.menu_text.on_click = self.show_menu
         self.theme_icon = ft.IconButton(icon=ft.icons.WB_SUNNY_OUTLINED, on_click=self.switch_theme, icon_color=ft.colors.WHITE)
         self.hello_guest = ft.TextButton(text="Guest", icon_color=ft.colors.WHITE, disabled=True)
-        self.title_text = ft.Text("2-G2OD", color=ft.colors.WHITE)
+        self.title_text = "2-G2OD"
         self.my_appbar = ft.AppBar(
             leading=self.hello_guest,
             leading_width=100,
-            title=self.title_text,
+            title=ft.Text(
+                        spans=
+                        [
+                            ft.TextSpan(
+                                self.title_text,
+                                ft.TextStyle(
+                                    size=27,
+                                    weight=ft.FontWeight.BOLD,
+                                    foreground=ft.Paint(
+                                        gradient=ft.PaintLinearGradient(
+                                            (0, 20),
+                                            (750, 20),
+                                            [
+                                                ft.colors.BLACK,
+                                                ft.colors.WHITE
+                                            ]
+                                        )
+                                    )
+                                )
+                            )
+                        ]
+                    ),
             color=ft.colors.WHITE,
             center_title=True,
             bgcolor=ft.colors.DEEP_PURPLE_300,
@@ -131,7 +152,7 @@ class UserAppBar:
         self.page = page
         # self.menu = UserMenu(page)
         self.theme_icon = ft.IconButton(icon=ft.icons.WB_SUNNY_OUTLINED, on_click=self.switch_theme, icon_color=ft.colors.WHITE)
-        self.title_text = ft.Text("2-G2OD", color=ft.colors.WHITE)
+        self.title_text = "2-G2OD"
         self.popup_button = ft.PopupMenuButton(
             items=[
                 ft.PopupMenuItem(
@@ -148,7 +169,28 @@ class UserAppBar:
 
         self.my_appbar = ft.AppBar(
             leading_width=100,
-            title=self.title_text,
+            title=ft.Text(
+                        spans=
+                        [
+                            ft.TextSpan(
+                                self.title_text,
+                                ft.TextStyle(
+                                    size=27,
+                                    weight=ft.FontWeight.BOLD,
+                                    foreground=ft.Paint(
+                                        gradient=ft.PaintLinearGradient(
+                                            (0, 20),
+                                            (750, 20),
+                                            [
+                                                ft.colors.BLACK,
+                                                ft.colors.WHITE
+                                            ]
+                                        )
+                                    )
+                                )
+                            )
+                        ]
+                    ),
             color=ft.colors.WHITE,
             center_title=True,
             bgcolor=ft.colors.DEEP_PURPLE_300,
@@ -179,11 +221,32 @@ class TableAppBar:
         self.page = page
         # self.menu = UserMenu(page)
         self.theme_icon = ft.IconButton(icon=ft.icons.WB_SUNNY_OUTLINED, on_click=self.switch_theme, icon_color=ft.colors.WHITE)
-        self.title_text = ft.Text("2-G2OD")
+        self.title_text = "2-G2OD"
         self.my_appbar = ft.AppBar(
             leading=ft.IconButton(icon=ft.icons.ARROW_BACK, on_click=lambda _: self.page.go("/client_kmc"), icon_color=ft.colors.WHITE),
             leading_width=40,
-            title=self.title_text,
+            title=ft.Text(
+                        spans=
+                        [
+                            ft.TextSpan(
+                                self.title_text,
+                                ft.TextStyle(
+                                    size=27,
+                                    weight=ft.FontWeight.BOLD,
+                                    foreground=ft.Paint(
+                                        gradient=ft.PaintLinearGradient(
+                                            (0, 20),
+                                            (750, 20),
+                                            [
+                                                ft.colors.BLACK,
+                                                ft.colors.WHITE
+                                            ]
+                                        )
+                                    )
+                                )
+                            )
+                        ]
+                    ),
             color=ft.colors.WHITE,
             center_title=True,
             bgcolor=ft.colors.DEEP_PURPLE_300,

@@ -93,13 +93,13 @@ class FilePicker:
             visible=False
         )
 
-        self.buttons_row_title = ft.Row([ft.Text("PICK A FILE TO ANALYZE:", weight=ft.FontWeight.BOLD, color=ft.colors.DEEP_PURPLE_300, size=20)])
+        self.buttons_row_title = ft.Row([ft.Text(spans=[ft.TextSpan("PICK A FILE TO ANALYZE:", ft.TextStyle(size=20, weight=ft.FontWeight.BOLD, foreground=ft.Paint(gradient=ft.PaintLinearGradient((0, 20), (900, 20), [ft.colors.DEEP_PURPLE_300, ft.colors.BLACK]))))])])
         self.buttons_row = ft.Row([self.pick_button, self.file_name_appearance])
-        self.start_date_row_title = ft.Row([ft.Text("PICK A START DATE FOR YOUR TABLE:", weight=ft.FontWeight.BOLD, color=ft.colors.DEEP_PURPLE_300, size=20)])
+        self.start_date_row_title = ft.Row([ft.Text(spans=[ft.TextSpan("PICK A START DATE FOR YOUR TABLE:", ft.TextStyle(size=20, weight=ft.FontWeight.BOLD, foreground=ft.Paint(gradient=ft.PaintLinearGradient((0, 20), (900, 20), [ft.colors.DEEP_PURPLE_300, ft.colors.BLACK]))))])])
         self.start_date_row = ft.Row([self.start_date_button])
-        self.end_date_row_title = ft.Row([ft.Text("PICK AN END DATE FOR YOUR TABLE:", weight=ft.FontWeight.BOLD, color=ft.colors.DEEP_PURPLE_300, size=20)])
+        self.end_date_row_title = ft.Row([ft.Text(spans=[ft.TextSpan("PICK AN END DATE FOR YOUR TABLE:", ft.TextStyle(size=20, weight=ft.FontWeight.BOLD, foreground=ft.Paint(gradient=ft.PaintLinearGradient((0, 20), (900, 20), [ft.colors.DEEP_PURPLE_300, ft.colors.BLACK]))))])])
         self.end_date_row = ft.Row([self.end_date_button])
-        self.upload_row_title = ft.Row([ft.Text("UPLOAD YOUR FILE:", weight=ft.FontWeight.BOLD, color=ft.colors.DEEP_PURPLE_300, size=20)], visible=False)
+        self.upload_row_title = ft.Row([ft.Text(spans=[ft.TextSpan("UPLOAD YOUR FILE:", ft.TextStyle(size=20, weight=ft.FontWeight.BOLD, foreground=ft.Paint(gradient=ft.PaintLinearGradient((0, 20), (900, 20), [ft.colors.DEEP_PURPLE_300, ft.colors.BLACK]))))])], visible=False)
         self.upload_row = ft.Row([self.upload_button])
         self.confirmation_row = ft.Row([self.confirmation], visible=False)
         self.table_redirection_row = ft.Row([self.table_welcoming_text_button], visible=False)
