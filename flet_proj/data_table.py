@@ -130,6 +130,7 @@ class DataTable:
     # *******   DataFrame Information Extraction Into Columns & Rows   ****************
     # =================================================================================
 
+
     def table_columns_generation(self) -> list[ft.DataColumn]:
         columns_list = []
         for i in range(len(self.columns_names_list)):

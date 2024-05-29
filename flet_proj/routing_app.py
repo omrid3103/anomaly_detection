@@ -30,7 +30,7 @@ class DataKeeper:
 
 
 def main(page: ft.Page, url: str):
-    page.title = "Routes Example"
+    page.title = "Omri's Anomaly Detection - 2GooD"
     page.scroll = ft.ScrollMode.ALWAYS
 
     user_information = UserDetails("", "", "", "")
@@ -71,7 +71,12 @@ def main(page: ft.Page, url: str):
                 controls=[
                     guest_appbar,
                     guest_menu,
-                    ft.Row([ft.Image(src="../authentication/CompanyLogo.png"), ft.Text("Welcome Guest", size=50, color=ft.colors.DEEP_PURPLE_300)], Ro)
+                    ft.Column(
+                        [
+                            ft.Row([ft.Image(src="../authentication/CompanyLogo.png"), ft.Text("Welcome Guest", size=50, color=ft.colors.DEEP_PURPLE_300)], alignment=ft.MainAxisAlignment.CENTER)
+                        ],
+                        alignment=ft.MainAxisAlignment.CENTER
+                    )
                 ],
             )
         )
@@ -112,9 +117,17 @@ def main(page: ft.Page, url: str):
                     [
                         user_appbar,
                         user_menu,
-                        ft.Row([ft.Image(src="../authentication/CompanyLogo.png"),
-                                ft.Text("Welcome " + user_information.info["username"] + "", color=ft.colors.DEEP_PURPLE_300, size=50)])
+                        ft.Column(
+                            [
+                                ft.Row([ft.Image(src="../authentication/CompanyLogo.png"),
+                                        ft.Text(f"Welcome {user_information.info['username']}", size=50, color=ft.colors.DEEP_PURPLE_300)],
+                                       alignment=ft.MainAxisAlignment.CENTER)
+                            ],
+                            alignment=ft.MainAxisAlignment.CENTER
+                        )
                     ],
+                        # ft.Row([ft.Image(src="../authentication/CompanyLogo.png"),
+                        #         ft.Text("Welcome " + user_information.info["username"] + "", color=ft.colors.DEEP_PURPLE_300, size=50)])
                 )
             )
             user_appbar.leading = ft.TextButton(text=f"{user_information.info['username']}", disabled=True)
@@ -137,7 +150,8 @@ def main(page: ft.Page, url: str):
                         user_appbar,
                         user_menu,
                         file_picker.content,
-                    ]
+                    ],
+                    scroll=ft.ScrollMode.ALWAYS
                 )
             )
 

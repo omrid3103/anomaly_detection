@@ -71,11 +71,11 @@ class SignUp:
                 self.details["email"] = self.email_tb.value
                 self.details["password"] = self.password_tb.value
                 self.details["token"] = result["token"]
+                time.sleep(1)
                 self.password_tb.value = ""
                 self.username_tb.value = ""
                 self.email_tb.value = ""
                 self.page.update()
-                time.sleep(1)
                 self.page.go('/user_home')
 
     def open_dlg(self,):
@@ -188,11 +188,11 @@ class SignIn:
                     self.details["email"] = self.email_tb.value
                     self.details["password"] = self.password_tb.value
                     self.details["token"] = result["token"]
+                    time.sleep(1)
                     self.password_tb.value = ""
                     self.username_tb.value = ""
                     self.email_tb.value = ""
                     self.page.update()
-                    time.sleep(1)
                     self.page.go('/user_home')
         self.page.update()
 

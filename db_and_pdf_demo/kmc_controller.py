@@ -342,17 +342,20 @@ class CommonChars:
             for s in self.yes_or_no:
                 if s != "Yes":
                     for i in self.rows_indexes_list:
-                        if self.file_df.iloc[i]["Was-Card-Shown"] == s:
+                        if self.file_df.iloc[i]["Was-Card-Shown"] == s and i not in indexes_of_anomalies:
                             indexes_of_anomalies.append(i)
+            print(f"indexes_of_anomalies: {indexes_of_anomalies}")
             return ft.Text("\tA card was shown in most of the transactions.", size=15), indexes_of_anomalies
         if yes_counter < no_counter:
             for s in self.yes_or_no:
                 if s != "No":
                     for i in self.rows_indexes_list:
-                        if self.file_df.iloc[i]["Was-Card-Shown"] == s:
+                        if self.file_df.iloc[i]["Was-Card-Shown"] == s and i not in indexes_of_anomalies:
                             indexes_of_anomalies.append(i)
+            print(f"indexes_of_anomalies: {indexes_of_anomalies}")
             return ft.Text("\tA card was not shown in most of the transactions.", size=15), indexes_of_anomalies
         if yes_counter == no_counter:
+            print(f"indexes_of_anomalies: {indexes_of_anomalies}")
             return ft.Text("\tA card was shown in half of the transactions, and was not shown in the other half.", size=15), indexes_of_anomalies
 
     def alert_dialog_update(self):
@@ -373,17 +376,18 @@ class CommonChars:
             for i in anomalies_indexes_list[0]:
                 if i in anomalies_indexes_list[1] and i in anomalies_indexes_list[2]:
                     anomalies_for_sure.append(i)
-                elif i in anomalies_indexes_list[1] or i in anomalies_indexes_list[2]:
+                elif (i in anomalies_indexes_list[1] and i not in anomalies_indexes_list[2]) or (i in anomalies_indexes_list[2] and i not in anomalies_indexes_list[1]):
                     potential_anomalies.append(i)
             for i in anomalies_indexes_list[1]:
-                if i is not anomalies_indexes_list[0] and i in anomalies_indexes_list[2]:
+                if (i is not anomalies_indexes_list[0] and i in anomalies_indexes_list[2]) and i not in anomalies_for_sure:
                     potential_anomalies.append(i)
+            print(f"1: anomalies_for_sure: {anomalies_for_sure}\npotential_anomalies: {potential_anomalies}")
             for pointer, i in enumerate(anomalies_for_sure):
                 anomalies_for_sure[pointer] = index_in_group(i, self.rows_indexes_list) + 1
             for pointer, i in enumerate(potential_anomalies):
                 if index_in_group(i, self.rows_indexes_list) + 1 not in anomalies_for_sure:
                     potential_anomalies[pointer] = index_in_group(i, self.rows_indexes_list) + 1
-            print(f"anomalies_for_sure: {anomalies_for_sure}\npotential_anomalies: {potential_anomalies}")
+            print(f"2: anomalies_for_sure: {anomalies_for_sure}\npotential_anomalies: {potential_anomalies}")
             return anomalies_for_sure, potential_anomalies
 
 

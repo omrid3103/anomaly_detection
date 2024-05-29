@@ -47,6 +47,7 @@ class FilePicker:
             color=ft.colors.DEEP_PURPLE_300,
             on_click=lambda _: self.pick_files_dialog.pick_files()
         )
+        self.file_name_appearance = ft.Text("", visible=False, color=ft.colors.DEEP_PURPLE_300, size=18)
 
 
         self.start_date_picker = ft.DatePicker(
@@ -92,14 +93,29 @@ class FilePicker:
             visible=False
         )
 
-        self.buttons_row = ft.Row([self.pick_button])
+        self.buttons_row_title = ft.Row([ft.Text("PICK A FILE TO ANALYZE:", weight=ft.FontWeight.BOLD, color=ft.colors.DEEP_PURPLE_300, size=20)])
+        self.buttons_row = ft.Row([self.pick_button, self.file_name_appearance])
+        self.start_date_row_title = ft.Row([ft.Text("PICK A START DATE FOR YOUR TABLE:", weight=ft.FontWeight.BOLD, color=ft.colors.DEEP_PURPLE_300, size=20)])
         self.start_date_row = ft.Row([self.start_date_button])
+        self.end_date_row_title = ft.Row([ft.Text("PICK AN END DATE FOR YOUR TABLE:", weight=ft.FontWeight.BOLD, color=ft.colors.DEEP_PURPLE_300, size=20)])
         self.end_date_row = ft.Row([self.end_date_button])
+        self.upload_row_title = ft.Row([ft.Text("UPLOAD YOUR FILE:", weight=ft.FontWeight.BOLD, color=ft.colors.DEEP_PURPLE_300, size=20)], visible=False)
         self.upload_row = ft.Row([self.upload_button])
         self.confirmation_row = ft.Row([self.confirmation], visible=False)
         self.table_redirection_row = ft.Row([self.table_welcoming_text_button], visible=False)
-        self.items = [self.buttons_row, self.start_date_row, self.end_date_row, self.upload_row, self.confirmation_row, self.table_redirection_row]
-        self.content = ft.Column(spacing=20, controls=self.items)
+        self.items = [
+            self.buttons_row_title,
+            self.buttons_row,
+            self.start_date_row_title,
+            self.start_date_row,
+            self.end_date_row_title,
+            self.end_date_row,
+            self.upload_row_title,
+            self.upload_row,
+            self.confirmation_row,
+            self.table_redirection_row
+        ]
+        self.content = ft.Column(spacing=25, controls=self.items)
 
     def pick_files_result(self, e: ft.FilePickerResultEvent):
         """
@@ -119,7 +135,8 @@ class FilePicker:
                 file_size: str = str(e.files[0].size)
                 print("OK", e.files[0].name)
                 if self.saved_file is not None:
-                    self.buttons_row.controls.append(ft.Text(f"File picked: {self.f_name}, Size: {file_size}KB"))
+                    self.file_name_appearance.value = f"File picked: {self.f_name}, Size: {file_size}KB"
+                    self.file_name_appearance.visible = True
                     self.buttons_row.update()
                     self.content.update()
                     self.page.update()
@@ -157,7 +174,10 @@ class FilePicker:
         self.upload_row.update()
         self.start_date_row.controls.remove(self.start_date_row.controls[1])
         self.end_date_row.controls.remove(self.end_date_row.controls[1])
-        self.buttons_row.controls.remove(self.buttons_row.controls[-1])
+        self.file_name_appearance.visible = False
+        self.buttons_row.update()
+        self.upload_row_title.visible = False
+        self.upload_row_title.update()
         self.content.update()
         self.page.update()
         self.page.go("/data_table")
@@ -177,6 +197,8 @@ class FilePicker:
             self.upload_button.visible = True
             self.upload_row.visible = True
             self.upload_row.update()
+            self.upload_row_title.visible = True
+            self.upload_row_title.update()
             self.table_time_stamp = f"{self.start_date_value} - {self.end_date_value}"
         self.content.update()
         self.page.update()
@@ -197,6 +219,8 @@ class FilePicker:
             self.upload_button.visible = True
             self.upload_row.visible = True
             self.upload_row.update()
+            self.upload_row_title.visible = True
+            self.upload_row_title.update()
         self.content.update()
         self.page.update()
 

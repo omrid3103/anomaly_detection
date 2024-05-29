@@ -73,7 +73,7 @@ class FormerData:
                 return None, "No"
 
     def generate_buttons(self) -> list[ft.Row]:
-        buttons_list: list = [ft.Row([ft.Text("Click To See Your Tables:", color=ft.colors.BLACK, size=60)])]
+        buttons_list: list = [ft.Row([ft.Text("Click To See Your Tables:", color=ft.colors.DEEP_PURPLE_300, size=60)])]
 
         for i, t in enumerate(self.data):
             json_buffer = StringIO(t["json_df"])
@@ -81,7 +81,7 @@ class FormerData:
             self.dataframes_list.append(table_df)
             buttons_list.append(ft.Row(
                 [
-                    ft.Text(f"Table #{i + 1}: {t['table_time_stamp']}", weight=ft.FontWeight("bold"), color=ft.colors.BLACK, size=30),
+                    ft.Text(f"Table #{i + 1}: {t['table_time_stamp']}", weight=ft.FontWeight("bold"), color=ft.colors.DEEP_PURPLE_300, size=30),
                     # ft.ElevatedButton(
                     #     f"Table #{i + 1}",
                     #     style=ft.ButtonStyle(
